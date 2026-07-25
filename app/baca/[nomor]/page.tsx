@@ -62,7 +62,10 @@ export default async function BacaSuratPage(props: PageProps) {
             const teksArti = item.teksIndonesia || item.idn || item.arti || item.terjemahan || '';
             const nomorAyat = item.nomorAyat || item.nomor || index + 1;
 
-            return <AyatItem key={nomorAyat} nomorSurat={surat.nomor || nomorSurat} namaSurat={surat.namaLatin || surat.nama_latin || 'Surat'} nomorAyat={nomorAyat} arab={teksArab} latin={teksLatin} arti={teksArti} />;
+            // Ambil URL audio per ayat dari berbagai kemungkinan struktur data API
+            const audioAyat = item.audio || item.audioFull || item.audio_url || null;
+
+            return <AyatItem key={nomorAyat} nomorSurat={surat.nomor || nomorSurat} namaSurat={surat.namaLatin || surat.nama_latin || 'Surat'} nomorAyat={nomorAyat} arab={teksArab} latin={teksLatin} arti={teksArti} audioUrl={audioAyat} />;
           })}
       </div>
     </main>

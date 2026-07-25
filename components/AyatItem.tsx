@@ -1,7 +1,7 @@
 // src/components/AyatItem.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 interface Props {
   nomorSurat: number;
@@ -10,9 +10,54 @@ interface Props {
   arab: string;
   latin: string;
   arti: string;
+  audioUrl?: string | Record<string, string> | null; // Tambahan prop untuk audio per ayat
 }
 
-export default function AyatItem({ nomorSurat, namaSurat, nomorAyat, arab, latin, arti }: Props) {
+export default function AyatItem({ nomorSurat, namaSurat, nomorAyat, arab, latin, arti, audioUrl }: Props) {
+  // State untuk Audio per Ayat
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Ambil string URL audio (bisa string langsung atau objek qori)
+  const getAudioSrc = () => {
+    if (!audioUrl) return null;
+    if (typeof audioUrl === 'string') return audioUrl;
+    const values = Object.values(audioUrl);
+    return values[0] || null;
+  };
+
+  const srcAudio = getAudioSrc();
+
+  useEffect(() => {
+    if (srcAudio) {
+      audioRef.current = new Audio(srcAudio);
+      audioRef.current.onended = () => setIsPlaying(false);
+    }
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, [srcAudio]);
+
+  const togglePlayAudio = () => {
+    if (!audioRef.current) return;
+    if (isPlaying) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+    } else {
+      audioRef.current
+        .play()
+        .then(() => {
+          setIsPlaying(true);
+        })
+        .catch(() => {
+          setIsPlaying(false);
+        });
+    }
+  };
+
   // Inisialisasi status favorit langsung dari localStorage secara aman
   const [isFavorit, setIsFavorit] = useState(() => {
     if (typeof window === 'undefined') return false;
@@ -105,7 +150,20 @@ export default function AyatItem({ nomorSurat, namaSurat, nomorAyat, arab, latin
           {isTerakhirDibaca && <span className="text-xs bg-emerald-600 text-white font-bold px-3 py-1 rounded-full shadow-sm">📌 Posisi Terakhir Dibaca</span>}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap justify-end">
+          {/* Tombol Play Audio per Ayat */}
+          {srcAudio && (
+            <button
+              onClick={togglePlayAudio}
+              className={`px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                isPlaying ? 'bg-amber-500 text-white shadow-md animate-pulse' : 'bg-emerald-50 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 border border-emerald-200 dark:border-emerald-800/50'
+              }`}
+              title="Putar Audio Ayat"
+            >
+              {isPlaying ? '⏸️ Jeda' : '▶️ Putar'}
+            </button>
+          )}
+
           {/* Tombol Tandai Dibaca */}
           <button
             onClick={tandaiTerakhirDibaca}
