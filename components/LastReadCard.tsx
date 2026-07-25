@@ -1,40 +1,35 @@
 // src/components/LastReadCard.tsx
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
 
 export default function LastReadCard() {
-  const [isMounted, setIsMounted] = useState(false);
   const [lastRead, setLastRead] = useState<{ nomorSurat: number; namaSurat: string; nomorAyat: number } | null>(null);
 
   useEffect(() => {
-    setIsMounted(true);
-    try {
-      const saved = localStorage.getItem('terakhir_dibaca');
-      if (saved) {
+    const saved = localStorage.getItem('terakhir_dibaca');
+    if (saved) {
+      try {
         setLastRead(JSON.parse(saved));
-      }
-    } catch {}
+      } catch {}
+    }
   }, []);
 
-  // Selama belum mounted (saat proses SSR di server), jangan render apa-apa untuk mencegah hydration mismatch
-  if (!isMounted || !lastRead) return null;
+  if (!lastRead) return null;
 
   return (
-    <div className="bg-white border border-emerald-200 rounded-3xl p-6 shadow-sm mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div className="flex items-center gap-4">
-        <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-2xl font-bold">📖</div>
-        <div>
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Terakhir Kamu Baca</p>
-          <h3 className="text-lg font-bold text-slate-800">
-            Surat {lastRead.namaSurat} <span className="text-emerald-600 font-semibold">(Ayat {lastRead.nomorAyat})</span>
-          </h3>
-        </div>
+    <div className="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-6 md:p-8 rounded-3xl shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 transition-colors">
+      <div>
+        <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Terakhir Kamu Baca</p>
+        <h3 className="text-xl font-extrabold text-slate-800 dark:text-slate-100">
+          Surat {lastRead.namaSurat} <span className="text-emerald-600 dark:text-emerald-400 font-medium">(Ayat {lastRead.nomorAyat})</span>
+        </h3>
       </div>
-
-      {/* Menambahkan hash #ayat-[nomorAyat] di akhir link */}
-      <Link href={`/baca/${lastRead.nomorSurat}#ayat-${lastRead.nomorAyat}`} className="w-full sm:w-auto px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-md transition-all text-center text-sm">
+      <Link
+        href={`/baca/${lastRead.nomorSurat}#ayat-${lastRead.nomorAyat}`}
+        className="w-full md:w-auto text-center px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-2xl shadow-md transition-all text-sm cursor-pointer"
+      >
         Lanjutkan Membaca →
       </Link>
     </div>

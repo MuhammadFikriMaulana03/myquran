@@ -1,6 +1,6 @@
 // src/app/kalender/page.tsx
 
-import Link from 'next/link';
+import BackButton from '../../components/BackButton'; // Import komponen BackButton
 import KalenderControl from '../../components/KalenderControl';
 
 interface PageProps {
@@ -151,9 +151,7 @@ export default async function KalenderPage(props: PageProps) {
     return (
       <main className="min-h-screen flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 p-4 transition-colors">
         <p className="text-red-500 font-bold mb-4">Maaf, gagal memuat kalender.</p>
-        <Link href="/" className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow transition">
-          Kembali ke Beranda
-        </Link>
+        <BackButton />
       </main>
     );
   }
@@ -162,14 +160,9 @@ export default async function KalenderPage(props: PageProps) {
 
   return (
     <main className="container mx-auto p-4 md:p-8 max-w-7xl min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-300">
-      {/* Tombol Kembali */}
+      {/* Tombol Navigasi Kembali menggunakan BackButton (router.back()) */}
       <div className="mb-6 mt-4">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all font-medium"
-        >
-          <span>←</span> Kembali ke Beranda
-        </Link>
+        <BackButton />
       </div>
 
       {/* Header Kalender */}

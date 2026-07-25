@@ -1,7 +1,7 @@
 // src/app/hadits/page.tsx
 'use client';
 
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 const daftarHadits = [
@@ -145,7 +145,7 @@ const daftarHadits = [
     judul: 'Keutamaan Membaca Istighfar',
     perawi: 'HR. Abu Dawud',
     kategori: 'Abu Dawud',
-    arab: 'مَنْ لَزِمَ الِاسْتِغْفَارَ جَعَلَ اللَّهُ لَهُ مِنْ كُلِّ ضِيقٍ مَخْرَجًا، وَمِنْ كُلِّ هَمٍّ فَرَجًا',
+    arab: 'مَنْ لَزِمَ الِاسْتِغْفَارَ جَعَلَ اللَّهُ لَهُ مِنْ كُلِّ ضِيقٍ مَخْرَجًا، وَمِنْ كُلِّ هَمٍّ فَرَجًا',
     latin: "Man lazimal-istighfara ja'alallahu lahu min kulli dhiiqin makhrajan, wa min kulli hammin faraja.",
     arti: 'Barangsiapa yang istiqomah beristighfar, niscaya Allah memberikan jalan keluar bagi setiap kesempitannya dan kelapangan bagi setiap kesusahannya.',
   },
@@ -199,7 +199,7 @@ const daftarHadits = [
     judul: 'Keutamaan Sholat Malam (Tahajud)',
     perawi: 'HR. Muslim',
     kategori: 'Muslim',
-    arab: 'أَفْضَلُ الصَّلَاةِ بَعْدَ الصَّلَاةِ الْمَكْتُوبَةِ صَلَاةُ اللَّيْلِ',
+    arab: 'أَفْضَلُ الصَّلَاةِ بَعْدَ الصَّلَاةِ الْمَكْتُوبَةِ صَلَاةُ اللَّيْلِ',
     latin: "Afdhalus-shalati ba'das-shalatil-maktubati salatul-lail.",
     arti: 'Sebaik-baik sholat setelah sholat fardhu adalah sholat malam (tahajud).',
   },
@@ -208,7 +208,7 @@ const daftarHadits = [
     judul: 'Larangan Saling Mendengki',
     perawi: 'HR. Muslim',
     kategori: 'Muslim',
-    arab: 'وَلَا تَحَاسَدُوا، وَلَا تَبَاغَضُوا، وَلَا تَدَابَرُوا، وَكُونُوا عِبَادَ اللَّهِ إِخْوَانًا',
+    arab: 'وَلَا تَحَاسَدُوا، وَلَا تَبَاغَضُوا، وَلَا تَدَابَرُوا، وَكُونُوا عِبَادَ اللَّهِ إِخْوَانًا',
     latin: "Wa la tahasadu, wa la taba-ghadu, wa la tadabaru, wa kunu 'ibadallahi ikhwanan.",
     arti: 'Janganlah kalian saling mendengki, saling membenci, saling membelakangi, dan jadilah kalian hamba-hamba Allah yang bersaudara.',
   },
@@ -217,7 +217,7 @@ const daftarHadits = [
     judul: 'Keutamaan Membaca Ayat Kursi',
     perawi: "HR. An-Nasa'i",
     kategori: "An-Nasa'i",
-    arab: 'مَنْ قَرَأَ آيَةَ الْكُرْسِيِّ دُبُرَ كُلِّ صَلَاةٍ مَكْتُوبَةٍ لَمْ يَمْنَعْهُمْ مِنْ دُخُولِ الْجَنَّةِ إِلَّا أَنْ يَمُوتَ',
+    arab: 'مَنْ قَرَأَ آيَةَ الْكُرْسِيِّ دُبُرَ كُلِّ صَلَاةٍ مَكْتُوبَةٍ لَمْ يَمْنَعْهُمْ مِنْ دُخُولِ الْجَنَّةِ إِلَّا أَنْ يَمُوتَ',
     latin: "Man qara'a ayatal-kursiyyi dubura kulli shalatin maktubatin lam yamna'hum min dukhulil-jannati illa an yamuta.",
     arti: 'Barangsiapa membaca Ayat Kursi setiap selesai sholat fardhu, maka tidak ada yang menghalanginya masuk surga kecuali kematian.',
   },
@@ -325,7 +325,7 @@ const daftarHadits = [
     judul: 'Keutamaan Dzikir Pagi dan Petang (Tasbih & Tahmid)',
     perawi: 'HR. Muslim',
     kategori: 'Muslim',
-    arab: 'مَنْ قَالَ: سُبْحَانَ اللَّهِ وَبِحَمْدِهِ فِي يَوْمٍ مِائَةَ مَرَّةٍ، حُطَّتْ خَطَايَاهُ وَإِنْ كَانَتْ مِثْلَ زَبَدِ الْبَحْرِ',
+    arab: 'مَنْ قَالَ: سُبْحَانَ اللَّهِ وَبِحَمْدِهِ فِي يَوْمٍ مِائَةَ مَرَّةٍ، حُطَّتْ خَطَايَاهُ وَإِنْ كَانَتْ مِثْلَ زَبَدِ الْبَحْرِ',
     latin: "Man qara'a: subhanallahi wa bihamdihi fi yaumin mi'atan marratan, huththat khathayahu wa in kanat mitsla zabadil-bahr.",
     arti: "Barangsiapa membaca 'Subhanallahi wa bihamdihi' dalam sehari sebanyak 100 kali, maka kesalahan-kesalahannya akan diampuni meskipun sebanyak buih di lautan.",
   },
@@ -343,7 +343,7 @@ const daftarHadits = [
     judul: 'Anjuran Menjenguk Orang Sakit',
     perawi: 'HR. Muslim',
     kategori: 'Muslim',
-    arab: 'مَنْ عَادَ مَرِيضًا أَوْ زَارَ أَخًا لَهُ فِي اللَّهِ نَادَاهُ مُنَادٍ: أَنْ طِبْتَ وَطَابَ مَمْشَاكَ وَتبَوَّأْتَ مِنَ الْجَنَّةِ مَنْزِلًا',
+    arab: 'مَنْ عَادَ مَرِيضًا أَوْ زَارَ أَخًا لَهُ فِي اللَّهِ نَادَاهُ مُنَادٍ: أَنْ طِبْتَ وَطَابَ مَمْشَاكَ وَتبَوَّأْتَ مِنَ الْجَنَّةِ مَنْزِلًا',
     latin: "Man 'ada maridhan aw zara akhan lahu fiillahi nada-hu munadin: an thibta wa thaba mamsyaka wa tabawwa'ta minal-jannati manzila.",
     arti: "Barangsiapa menjenguk orang sakit atau mengunjungi saudaranya karena Allah, penyeru akan memanggil: 'Alangkah baiknya engkau, bagus pula langkahmu, dan engkau telah menempati sebuah tempat tinggal di surga.'",
   },
@@ -352,7 +352,7 @@ const daftarHadits = [
     judul: 'Keutamaan Menutupi Aib Saudara',
     perawi: 'HR. Muslim',
     kategori: 'Muslim',
-    arab: 'وَمَنْ سَتَرَ مُسْلِمًا سَتَرَهُ اللَّهُ فِي الدُّنْيَا وَالْآخِرَةِ',
+    arab: 'وَمَنْ سَتَرَ مُسْلِمًا سَتَرَهُ اللَّهُ فِي الدُّنْيَا وَالْآخِرَةِ',
     latin: 'Wa man satara musliman satarahullahu fid-dunya wal-akhirah.',
     arti: 'Dan barangsiapa menutupi aib seorang Muslim, maka Allah akan menutupi aibnya di dunia dan di akhirat.',
   },
@@ -370,9 +370,10 @@ const daftarHadits = [
 const categories = ['Semua', 'Bukhari', 'Muslim', 'Bukhari & Muslim', 'Tirmidzi', 'Abu Dawud', "An-Nasa'i", 'Lainnya'];
 
 export default function HaditsPage() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Semua');
-  const [visibleCount, setVisibleCount] = useState(10); // Sistem Load More / Pagination agar performa tetap ringan
+  const [visibleCount, setVisibleCount] = useState(10);
 
   const filteredHadits = daftarHadits.filter((item) => {
     const q = searchQuery.toLowerCase();
@@ -386,23 +387,26 @@ export default function HaditsPage() {
   const displayedHadits = filteredHadits.slice(0, visibleCount);
 
   return (
-    <main className="container mx-auto p-4 md:p-8 max-w-4xl min-h-screen bg-slate-50 text-slate-800">
-      {/* Tombol Navigasi Kembali */}
+    <main className="container mx-auto p-4 md:p-8 max-w-4xl min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-300">
+      {/* Tombol Navigasi Kembali menggunakan router.back() */}
       <div className="mb-6 mt-4">
-        <Link href="/" className="inline-flex items-center gap-2 px-4 py-2 bg-white text-slate-700 rounded-lg shadow-sm border border-slate-200 hover:bg-slate-50 hover:text-emerald-600 transition-all font-medium">
-          <span>←</span> Kembali ke Beranda
-        </Link>
+        <button
+          onClick={() => router.back()}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all font-medium cursor-pointer"
+        >
+          <span>←</span> Kembali ke Sebelumnya
+        </button>
       </div>
 
       {/* Header Halaman */}
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-extrabold text-emerald-700 mb-2">Hadits Pilihan</h1>
-        <p className="text-slate-500">Kumpulan mutiara hadits Nabi Muhammad SAW penyejuk hati</p>
+        <h1 className="text-4xl font-extrabold text-emerald-700 dark:text-emerald-400 mb-2">Hadits Pilihan</h1>
+        <p className="text-slate-500 dark:text-slate-400">Kumpulan mutiara hadits Nabi Muhammad SAW penyejuk hati</p>
       </div>
 
       {/* Kotak Pencarian */}
       <div className="max-w-md mx-auto mb-6">
-        <div className="flex items-center w-full bg-white p-2 rounded-2xl shadow-sm border border-slate-200 focus-within:ring-2 focus-within:ring-emerald-400 transition-all">
+        <div className="flex items-center w-full bg-white dark:bg-slate-900 p-2 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 focus-within:ring-2 focus-within:ring-emerald-400 transition-all">
           <span className="pl-3 pr-2 text-slate-400">🔍</span>
           <input
             type="text"
@@ -412,10 +416,10 @@ export default function HaditsPage() {
               setVisibleCount(10);
             }}
             placeholder="Cari hadits (misal: niat, sholat, sedekah)..."
-            className="flex-1 bg-transparent text-slate-700 placeholder-slate-400 text-sm outline-none px-2 py-2 w-full"
+            className="flex-1 bg-transparent text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-sm outline-none px-2 py-2 w-full"
           />
           {searchQuery && (
-            <button onClick={() => setSearchQuery('')} className="px-3 text-slate-400 hover:text-slate-600 text-sm font-bold cursor-pointer">
+            <button onClick={() => setSearchQuery('')} className="px-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-sm font-bold cursor-pointer">
               ✕
             </button>
           )}
@@ -432,7 +436,9 @@ export default function HaditsPage() {
               setVisibleCount(10);
             }}
             className={`px-4 py-2 rounded-xl text-xs md:text-sm font-bold transition-all cursor-pointer ${
-              selectedCategory === cat ? 'bg-emerald-600 text-white shadow-md' : 'bg-white text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 border border-slate-200'
+              selectedCategory === cat
+                ? 'bg-emerald-600 text-white shadow-md'
+                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-slate-800 hover:text-emerald-700 dark:hover:text-emerald-400 border border-slate-200 dark:border-slate-800'
             }`}
           >
             {cat === 'Semua' ? '🌟 Semua Hadits' : cat === 'Lainnya' ? '📚 Lainnya' : `HR. ${cat}`}
@@ -445,21 +451,21 @@ export default function HaditsPage() {
         {displayedHadits.length > 0 ? (
           <>
             {displayedHadits.map((item) => (
-              <div key={item.id} className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-100 hover:shadow-md transition-all">
-                <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
-                  <h3 className="font-bold text-lg text-emerald-800">{item.judul}</h3>
-                  <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-3 py-1 rounded-full">{item.perawi}</span>
+              <div key={item.id} className="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-md transition-all">
+                <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
+                  <h3 className="font-bold text-lg text-emerald-800 dark:text-emerald-400">{item.judul}</h3>
+                  <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950 px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-900">{item.perawi}</span>
                 </div>
 
                 {/* Teks Arab */}
-                <p className="text-2xl md:text-3xl text-slate-800 font-serif leading-[2.5] text-right mb-4" dir="rtl">
+                <p className="text-2xl md:text-3xl text-slate-800 dark:text-slate-100 font-serif leading-[2.5] text-right mb-4 transition-colors" dir="rtl">
                   {item.arab}
                 </p>
 
                 {/* Teks Latin & Artinya */}
-                <div className="space-y-2 pt-3 border-t border-slate-50">
-                  <p className="text-emerald-700 italic text-sm md:text-base font-medium">{item.latin}</p>
-                  <p className="text-slate-600 leading-relaxed text-sm md:text-base">{item.arti}</p>
+                <div className="space-y-2 pt-3 border-t border-slate-50 dark:border-slate-800">
+                  <p className="text-emerald-700 dark:text-emerald-400 italic text-sm md:text-base font-medium">{item.latin}</p>
+                  <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-sm md:text-base">{item.arti}</p>
                 </div>
               </div>
             ))}
@@ -474,9 +480,9 @@ export default function HaditsPage() {
             )}
           </>
         ) : (
-          <div className="text-center p-12 bg-white rounded-3xl shadow-sm border border-slate-100 text-slate-500">
+          <div className="text-center p-12 bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 transition-colors">
             <p className="text-lg font-semibold mb-1">Hadits tidak ditemukan</p>
-            <p className="text-sm text-slate-400">Coba pilih kategori lain atau ubah kata kunci pencarian.</p>
+            <p className="text-sm text-slate-400 dark:text-slate-500">Coba pilih kategori lain atau ubah kata kunci pencarian.</p>
           </div>
         )}
       </div>

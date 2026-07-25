@@ -4,69 +4,36 @@
 import { useEffect, useState } from 'react';
 
 export default function DarkModeToggle() {
-  const [isMounted, setIsMounted] = useState(false);
-  const [isDark, setIsDark] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
-    queueMicrotask(() => setIsMounted(true));
-
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      setIsDark(true);
-      document.documentElement.classList.add('dark');
-    } else {
-      setIsDark(false);
-      document.documentElement.classList.remove('dark');
-    }
+    // Cek status dark mode saat komponen dimuat
+    const isDark = document.documentElement.classList.contains('dark');
+    setDarkMode(isDark);
   }, []);
 
-  const toggleTheme = () => {
-    if (isDark) {
-      setIsDark(false);
+  const toggleDarkMode = () => {
+    if (darkMode) {
       document.documentElement.classList.remove('dark');
       localStorage.setItem('theme', 'light');
+      setDarkMode(false);
     } else {
-      setIsDark(true);
       document.documentElement.classList.add('dark');
       localStorage.setItem('theme', 'dark');
+      setDarkMode(true);
     }
   };
 
-  if (!isMounted) {
-    return <div className="p-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 border border-slate-200 dark:border-slate-700 text-xs font-bold shadow-sm opacity-60">Loading...</div>;
-  }
-
   return (
     <button
-      onClick={toggleTheme}
-      className="p-3 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 transition-all cursor-pointer flex items-center gap-2 text-xs font-bold shadow-sm"
-      title="Ubah Mode Tampilan"
+      onClick={toggleDarkMode}
+      className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 px-4 py-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md text-slate-800 dark:text-slate-100 rounded-full shadow-2xl border border-slate-200/80 dark:border-slate-800 hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer font-medium text-xs group"
+      title="Ubah Tema"
     >
-      {isDark ? (
-        <>
-          {/* Ikon Bulan / Dark Mode Aktif */}
-          <svg className="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"
-            />
-          </svg>
-          <span>Dark</span>
-        </>
-      ) : (
-        <>
-          {/* Ikon Matahari / Light Mode Aktif */}
-          <svg className="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"
-            />
-          </svg>
-          <span>Light</span>
-        </>
-      )}
+      <span className="w-7 h-7 rounded-full bg-emerald-50 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 flex items-center justify-center transition-transform group-hover:rotate-45 text-sm shadow-inner">
+        {darkMode ? '🌙' : '☀️'}
+      </span>
+      <span className="font-bold tracking-wide pr-1">{darkMode ? 'Dark Mode' : 'Light Mode'}</span>
     </button>
   );
 }
