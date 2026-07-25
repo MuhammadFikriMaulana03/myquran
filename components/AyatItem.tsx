@@ -10,15 +10,13 @@ interface Props {
   arab: string;
   latin: string;
   arti: string;
-  audioUrl?: string | Record<string, string> | null; // Tambahan prop untuk audio per ayat
+  audioUrl?: string | Record<string, string> | null;
 }
 
 export default function AyatItem({ nomorSurat, namaSurat, nomorAyat, arab, latin, arti, audioUrl }: Props) {
-  // State untuk Audio per Ayat
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Ambil string URL audio (bisa string langsung atau objek qori)
   const getAudioSrc = () => {
     if (!audioUrl) return null;
     if (typeof audioUrl === 'string') return audioUrl;
@@ -28,37 +26,52 @@ export default function AyatItem({ nomorSurat, namaSurat, nomorAyat, arab, latin
 
   const srcAudio = getAudioSrc();
 
+  // Bersihkan audio saat komponen ditutup
   useEffect(() => {
-    if (srcAudio) {
-      audioRef.current = new Audio(srcAudio);
-      audioRef.current.onended = () => setIsPlaying(false);
-    }
     return () => {
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current = null;
       }
     };
-  }, [srcAudio]);
+  }, []);
 
   const togglePlayAudio = () => {
-    if (!audioRef.current) return;
-    if (isPlaying) {
+    if (!srcAudio) return;
+
+    // Jika sedang diputar, jeda
+    if (isPlaying && audioRef.current) {
       audioRef.current.pause();
       setIsPlaying(false);
-    } else {
-      audioRef.current
-        .play()
-        .then(() => {
-          setIsPlaying(true);
-        })
-        .catch(() => {
-          setIsPlaying(false);
-        });
+      return;
     }
+
+    // Jika ada audio lain yang sedang berputar, hentikan dulu
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+
+    // 🔴 KHUSUS SAFARI: Buat instance Audio LANGSUNG di dalam event handler klik user
+    const audio = new Audio(srcAudio);
+    audioRef.current = audio;
+
+    audio.onended = () => {
+      setIsPlaying(false);
+    };
+
+    audio
+      .play()
+      .then(() => {
+        setIsPlaying(true);
+      })
+      .catch((err) => {
+        console.error('Gagal memutar audio di Safari:', err);
+        setIsPlaying(false);
+        alert('Gagal memutar audio. Pastikan perangkat tidak dalam mode senyap (Silent Mode).');
+      });
   };
 
-  // Inisialisasi status favorit langsung dari localStorage secara aman
+  // State untuk Favorit & Terakhir Dibaca (tetap dipertahankan)
   const [isFavorit, setIsFavorit] = useState(() => {
     if (typeof window === 'undefined') return false;
     try {
@@ -72,7 +85,6 @@ export default function AyatItem({ nomorSurat, namaSurat, nomorAyat, arab, latin
     return false;
   });
 
-  // Inisialisasi status terakhir dibaca langsung dari localStorage secara aman
   const [isTerakhirDibaca, setIsTerakhirDibaca] = useState(() => {
     if (typeof window === 'undefined') return false;
     try {
@@ -85,7 +97,6 @@ export default function AyatItem({ nomorSurat, namaSurat, nomorAyat, arab, latin
     return false;
   });
 
-  // State untuk Toast Notification
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
 
@@ -135,7 +146,6 @@ export default function AyatItem({ nomorSurat, namaSurat, nomorAyat, arab, latin
         isTerakhirDibaca ? 'border-emerald-500 dark:border-emerald-500 ring-2 ring-emerald-200 dark:ring-emerald-900/50' : 'border-slate-100 dark:border-slate-800'
       }`}
     >
-      {/* TOAST NOTIFICATION MELAYANG */}
       {showToast && (
         <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 bg-emerald-900 dark:bg-emerald-950 text-white px-6 py-3 rounded-2xl shadow-2xl border border-emerald-500/50 flex items-center gap-3 animate-bounce transition-all">
           <span className="text-xl">✨</span>
@@ -143,7 +153,6 @@ export default function AyatItem({ nomorSurat, namaSurat, nomorAyat, arab, latin
         </div>
       )}
 
-      {/* Nomor Ayat & Tombol Aksi */}
       <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 flex items-center justify-center bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 font-bold rounded-xl border border-transparent dark:border-emerald-800/50">{nomorAyat}</div>
@@ -151,7 +160,6 @@ export default function AyatItem({ nomorSurat, namaSurat, nomorAyat, arab, latin
         </div>
 
         <div className="flex items-center gap-2 flex-wrap justify-end">
-          {/* Tombol Play Audio per Ayat */}
           {srcAudio && (
             <button
               onClick={togglePlayAudio}
@@ -164,7 +172,6 @@ export default function AyatItem({ nomorSurat, namaSurat, nomorAyat, arab, latin
             </button>
           )}
 
-          {/* Tombol Tandai Dibaca */}
           <button
             onClick={tandaiTerakhirDibaca}
             className={`px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
@@ -176,7 +183,6 @@ export default function AyatItem({ nomorSurat, namaSurat, nomorAyat, arab, latin
             {isTerakhirDibaca ? '📌 Ditandai' : '📌 Tandai Bacaan'}
           </button>
 
-          {/* Tombol Simpan Favorit */}
           <button
             onClick={toggleFavorit}
             className={`px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
@@ -190,7 +196,6 @@ export default function AyatItem({ nomorSurat, namaSurat, nomorAyat, arab, latin
         </div>
       </div>
 
-      {/* Teks Arab */}
       {arab ? (
         <p className="text-3xl md:text-4xl text-slate-800 dark:text-slate-100 font-serif leading-[2.5] text-right mb-6 transition-colors" dir="rtl">
           {arab}
@@ -199,7 +204,6 @@ export default function AyatItem({ nomorSurat, namaSurat, nomorAyat, arab, latin
         <p className="text-slate-400 dark:text-slate-600 italic text-right mb-6">Teks Arab kosong</p>
       )}
 
-      {/* Latin & Artinya */}
       <div className="space-y-3 pt-4 border-t border-slate-50 dark:border-slate-800/50">
         <p className="text-emerald-700 dark:text-emerald-400 italic font-medium transition-colors">{latin || 'Cara baca tidak tersedia'}</p>
         <p className="text-slate-600 dark:text-slate-300 leading-relaxed transition-colors">{arti || 'Artinya tidak tersedia'}</p>

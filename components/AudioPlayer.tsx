@@ -34,8 +34,16 @@ export default function AudioPlayer({ audioUrls, namaSurat }: Props) {
       audioRef.current.pause();
       setIsPlaying(false);
     } else {
-      audioRef.current.play();
-      setIsPlaying(true);
+      // 🔴 Penanganan khusus Safari untuk memastikan play() tidak diblokir
+      audioRef.current
+        .play()
+        .then(() => {
+          setIsPlaying(true);
+        })
+        .catch((err) => {
+          console.error('Gagal memutar audio di Safari:', err);
+          setIsPlaying(false);
+        });
     }
   };
 
@@ -67,7 +75,7 @@ export default function AudioPlayer({ audioUrls, namaSurat }: Props) {
 
   return (
     <div className="fixed bottom-4 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:w-full md:max-w-2xl z-50 bg-emerald-900/95 text-white backdrop-blur-xl shadow-2xl rounded-2xl p-4 border border-emerald-500/40 flex flex-col sm:flex-row items-center justify-between gap-3 transition-all">
-      <audio ref={audioRef} src={currentAudioUrl} onTimeUpdate={handleTimeUpdate} onLoadedMetadata={handleLoadedMetadata} onEnded={() => setIsPlaying(false)} />
+      <audio ref={audioRef} src={currentAudioUrl} preload="none" onTimeUpdate={handleTimeUpdate} onLoadedMetadata={handleLoadedMetadata} onEnded={() => setIsPlaying(false)} />
 
       {/* Tombol Play/Pause & Info Surat */}
       <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
