@@ -61,14 +61,15 @@ export default function AdhanNotifier({ timings }: Props) {
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
 
     // Konfigurasi Notifikasi Keren
-    const notificationOptions: NotificationOptions = {
+    // Konfigurasi Notifikasi Keren
+    const notificationOptions: any = {
       body: body,
-      icon: '/favicon.ico', // Ikon kecil di sebelah judul
-      badge: '/favicon.ico', // Ikon monokrom di status bar HP
-      image: 'https://images.unsplash.com/photo-1564507004663-b6dfb3c824d5?q=80&w=800&auto=format&fit=crop', // Banner gambar masjid yang elegan
-      vibrate: [500, 250, 500, 250, 1000, 250, 500, 250, 500], // Pola getaran HP panjang
-      requireInteraction: true, // Notif stay di layar sampai ditutup user
-      tag: 'myquran-alarm', // Mencegah notifikasi numpuk (replace yang lama)
+      icon: '/favicon.ico',
+      badge: '/favicon.ico',
+      image: 'https://images.unsplash.com/photo-1564507004663-b6dfb3c824d5?q=80&w=800&auto=format&fit=crop',
+      vibrate: [500, 250, 500, 250, 1000, 250, 500, 250, 500],
+      requireInteraction: true,
+      tag: 'myquran-alarm',
       actions: [
         { action: 'open-app', title: '🕌 Buka Aplikasi' },
         { action: 'close', title: '❌ Tutup' },
