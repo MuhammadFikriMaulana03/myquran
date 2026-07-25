@@ -83,14 +83,6 @@ export default async function Home(props: PageProps) {
               </h1>
               <p className="text-slate-500 dark:text-slate-400 text-sm md:text-base max-w-xl leading-relaxed">Temani hari-harimu dengan membaca Al-Quran, mendengarkan murottal, dan pengingat waktu sholat yang akurat.</p>
             </div>
-
-            {/* Kotak Status Ibadah (Tombol Dark Mode diatur universal via layout) */}
-            <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
-              <div className="bg-gradient-to-br from-emerald-600 to-emerald-700 dark:from-emerald-700 dark:to-emerald-900 text-white p-5 rounded-2xl shadow-md text-center min-w-[150px]">
-                <p className="text-xs uppercase tracking-wider opacity-80 font-medium mb-1">Status Ibadah</p>
-                <p className="text-base font-bold">📖 Produktif</p>
-              </div>
-            </div>
           </div>
         </div>
 
