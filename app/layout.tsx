@@ -26,6 +26,22 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" suppressHydrationWarning>
+      <head>
+        {/* TAMBAHAN KECIL: Skrip ini membaca localStorage sebelum halaman dirender agar tidak berkedip */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                  document.documentElement.classList.add('dark')
+                } else {
+                  document.documentElement.classList.remove('dark')
+                }
+              } catch (_) {}
+            `,
+          }}
+        />
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-300`} suppressHydrationWarning>
         {/* HEADER GLOBAL / TOMBOL DARK MODE */}
         <header className="max-w-6xl mx-auto px-4 md:px-8 pt-4 flex justify-end">

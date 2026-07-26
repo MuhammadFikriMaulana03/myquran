@@ -1,17 +1,43 @@
 // src/components/WidgetSholat.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { semuaKota } from '../data/wilayah';
+import { useRouter } from 'next/navigation'; // 👈 TAMBAHAN: Import useRouter Next.js
 
 export default function WidgetSholat({ defaultKota }: { defaultKota: string }) {
   const [query, setQuery] = useState(defaultKota);
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter(); // 👈 TAMBAHAN: Inisialisasi router
+
+  useEffect(() => {
+    const savedKota = localStorage.getItem('user_kota_sholat');
+    const urlParams = new URLSearchParams(window.location.search);
+
+    if (!urlParams.has('kota') && savedKota && savedKota !== defaultKota) {
+      // 👈 UBAHAN: Ganti window.location.replace dengan router.replace agar tidak hard-reload
+      router.replace(`/?kota=${encodeURIComponent(savedKota)}`, { scroll: false });
+    }
+  }, [defaultKota, router]);
 
   const filteredKota = query === '' ? semuaKota : semuaKota.filter((kota) => kota.toLowerCase().includes(query.toLowerCase()));
 
+  // 👈 TAMBAHAN: Fungsi khusus untuk menangani klik tombol cari
+  const handleCari = (e: React.FormEvent) => {
+    e.preventDefault(); // Mencegah browser melakukan hard-reload
+    localStorage.setItem('user_kota_sholat', query);
+
+    // Perbarui URL dan data tanpa me-refresh halaman & tanpa lompat ke atas!
+    router.push(`/?kota=${encodeURIComponent(query)}`, { scroll: false });
+    setIsOpen(false);
+  };
+
   return (
-    <form method="GET" action="/" className="flex flex-col md:flex-row justify-center items-start md:items-center gap-3 mb-8 w-full max-w-lg mx-auto">
+    <form
+      // 👈 UBAHAN: Hapus method="GET" action="/" dan ganti dengan onSubmit kita
+      onSubmit={handleCari}
+      className="flex flex-col md:flex-row justify-center items-start md:items-center gap-3 mb-8 w-full max-w-lg mx-auto"
+    >
       <div className="relative w-full">
         <div className="flex items-center w-full bg-emerald-700/60 p-1.5 rounded-xl backdrop-blur-sm border border-emerald-500/30 shadow-inner focus-within:ring-2 focus-within:ring-emerald-400 transition-all z-20">
           <div className="pl-3 pr-2 text-emerald-300">🔍</div>
@@ -25,7 +51,6 @@ export default function WidgetSholat({ defaultKota }: { defaultKota: string }) {
               setIsOpen(true);
             }}
             onFocus={() => setIsOpen(true)}
-            // Waktu tunggu blur bisa kita hapus atau kecilkan karena kita pakai trik onMouseDown
             onBlur={() => setIsOpen(false)}
             placeholder="Ketik nama kota (misal: Kuningan)..."
             className="flex-1 bg-transparent text-white placeholder-emerald-300/70 text-sm md:text-base outline-none px-2 py-2 w-full"
@@ -40,9 +65,8 @@ export default function WidgetSholat({ defaultKota }: { defaultKota: string }) {
               filteredKota.map((kota, idx) => (
                 <li
                   key={idx}
-                  // Trik Rahasia: Gunakan onMouseDown dan preventDefault!
                   onMouseDown={(e) => {
-                    e.preventDefault(); // Mencegah input kehilangan fokus
+                    e.preventDefault();
                     setQuery(kota);
                     setIsOpen(false);
                   }}

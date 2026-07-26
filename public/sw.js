@@ -1,3 +1,5 @@
+// public/sw.js
+
 self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
@@ -6,28 +8,22 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(self.clients.claim());
 });
 
-// Menangkap event klik pada notifikasi PWA
+// Menangkap event push / trigger notifikasi
+self.addEventListener('push', (event) => {
+  const data = event.data ? event.data.json() : {};
+  const title = data.title || 'Waktu Sholat Telah Tiba 🕌';
+  const options = {
+    body: data.body || 'Mari segera bersiap untuk menunaikan ibadah sholat.',
+    icon: '/icon.png',
+    badge: '/icon.png',
+    vibrate: [300, 100, 300],
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+// Ketika notifikasi diklik oleh pengguna di HP
 self.addEventListener('notificationclick', (event) => {
-  // Langsung tutup notifikasinya saat diklik
   event.notification.close();
-
-  // Jika user klik bebas (bukan tombol) atau klik tombol "Buka Aplikasi"
-  if (!event.action || event.action === 'open-app') {
-    event.waitUntil(
-      clients.matchAll({ type: 'window' }).then((clientList) => {
-        // Cek apakah tab aplikasi sudah terbuka, jika ya, fokuskan ke tab itu
-        for (const client of clientList) {
-          if (client.url.includes('/') && 'focus' in client) {
-            return client.focus();
-          }
-        }
-        // Jika belum ada tab yang terbuka, buka tab baru/buka PWA
-        if (clients.openWindow) {
-          return clients.openWindow('/');
-        }
-      }),
-    );
-  }
-
-  // Jika action === 'close', notifikasi sudah ditutup di atas, jadi tidak perlu apa-apa lagi.
+  event.waitUntil(clients.openWindow('/'));
 });

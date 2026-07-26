@@ -7,7 +7,7 @@ export default function DarkModeToggle() {
   const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
-    // Cek status dark mode saat komponen dimuat
+    // Cek status dark mode saat komponen dimuat (Ini otomatis akan membaca hasil dari script di layout)
     const isDark = document.documentElement.classList.contains('dark');
     setDarkMode(isDark);
   }, []);

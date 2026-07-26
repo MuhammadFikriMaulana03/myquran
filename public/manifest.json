@@ -1,0 +1,16 @@
+{
+  "name": "MyQuran App - Al-Quran & Doa Harian",
+  "short_name": "MyQuran",
+  "description": "Aplikasi Al-Quran digital, dzikir, kalkulator zakat, dan panduan ibadah lengkap.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#022c22",
+  "theme_color": "#047857",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}
