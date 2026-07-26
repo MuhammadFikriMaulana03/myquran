@@ -123,16 +123,40 @@ export default function KiblatPage() {
     };
   }, [handleAbsoluteOrientation, handleRelativeOrientation]);
 
-  // Kalkulasi Rotasi Super Akurat
   const baseHeading = compassHeading ?? 0;
   const qiblaTarget = qiblaBearing ?? 0;
 
-  // Jika HP user sensornya kebalik, kita balik rotasi cincin utamanya 180 derajat
   const displayHeading = isFlipped ? baseHeading + 180 : baseHeading;
   const realHeadingText = compassHeading !== null ? ((displayHeading % 360) + 360) % 360 : 0;
 
   return (
     <main className="container mx-auto p-4 md:p-8 max-w-md min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 flex flex-col items-center">
+      {/* 🌟 CSS SAKTI: Hapus Tombol Dark Mode & Bikin Animasi 3D Realistis 🌟 */}
+      <style>{`
+        /* Sembunyikan tombol dark mode bawaan layout khusus di halaman ini */
+        button[title="Ubah Tema"] {
+          display: none !important;
+        }
+
+        /* Animasi 3D Realistis Pergerakan Angka 8 untuk HP */
+        @keyframes figure8-motion {
+          0% { transform: translate(0, 0) rotate(0deg) rotateX(0deg) rotateY(0deg) scale(1); }
+          15% { transform: translate(45px, -35px) rotate(25deg) rotateX(30deg) rotateY(25deg) scale(1.1); }
+          25% { transform: translate(70px, 0) rotate(45deg) rotateX(0deg) rotateY(45deg) scale(1.15); }
+          35% { transform: translate(45px, 35px) rotate(25deg) rotateX(-30deg) rotateY(25deg) scale(1.1); }
+          50% { transform: translate(0, 0) rotate(0deg) rotateX(0deg) rotateY(0deg) scale(1); }
+          65% { transform: translate(-45px, -35px) rotate(-25deg) rotateX(30deg) rotateY(-25deg) scale(1.1); }
+          75% { transform: translate(-70px, 0) rotate(-45deg) rotateX(0deg) rotateY(-45deg) scale(1.15); }
+          85% { transform: translate(-45px, 35px) rotate(-25deg) rotateX(-30deg) rotateY(-25deg) scale(1.1); }
+          100% { transform: translate(0, 0) rotate(0deg) rotateX(0deg) rotateY(0deg) scale(1); }
+        }
+
+        .animate-realistic-8 {
+          animation: figure8-motion 4s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+          transform-style: preserve-3d;
+        }
+      `}</style>
+
       <div className="w-full mb-4 mt-2 self-start">
         <BackButton />
       </div>
@@ -168,22 +192,35 @@ export default function KiblatPage() {
         </div>
       )}
 
-      {/* TAHAP 2: KALIBRASI */}
+      {/* TAHAP 2: KALIBRASI REALISTIS */}
       {currentStep === 'CALIBRATION' && !error && (
         <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-8 rounded-3xl shadow-lg border border-white/20 dark:border-slate-800 text-center flex flex-col items-center gap-6 w-full animate-in fade-in zoom-in duration-300">
           <h3 className="font-black text-xl text-slate-800 dark:text-white">Kalibrasi Perangkat</h3>
 
-          <div className="relative w-32 h-32 flex items-center justify-center">
-            <div className="absolute text-emerald-500/20 dark:text-emerald-400/20 text-9xl">∞</div>
-            <div className="text-4xl absolute z-10 animate-[spin_3s_linear_infinite] origin-bottom drop-shadow-2xl">📱</div>
+          {/* Animasi Realistis 3D HP */}
+          <div className="relative w-40 h-40 flex items-center justify-center perspective-[500px]">
+            {/* Background Jalur Angka 8 */}
+            <div className="absolute text-emerald-500/10 dark:text-emerald-400/10 text-[10rem] font-serif leading-none select-none">∞</div>
+
+            {/* Ilustrasi HP 3D Bergerak */}
+            <div className="animate-realistic-8 z-10">
+              <div className="w-12 h-24 bg-slate-800 dark:bg-slate-300 rounded-xl border-[3px] border-slate-300 dark:border-slate-700 shadow-2xl flex flex-col items-center justify-between p-1 overflow-hidden relative">
+                <div className="w-4 h-1 bg-slate-600 dark:bg-slate-400 rounded-full mt-1"></div>
+                {/* Layar Menyala */}
+                <div className="w-full h-16 bg-emerald-500/20 rounded border border-emerald-500/30 flex items-center justify-center">
+                  <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_#10b981]"></div>
+                </div>
+                <div className="w-3 h-3 border-2 border-slate-600 dark:border-slate-400 rounded-full mb-0.5"></div>
+              </div>
+            </div>
           </div>
 
-          <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
-            Putar HP Anda membentuk <b>angka 8 (∞)</b> di udara selama 3 detik untuk menyesuaikan sensor magnetik.
+          <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium px-2">
+            Ikuti animasi di atas. Miringkan dan putar HP Anda membentuk <b>angka 8 (∞)</b> di udara untuk menetralkan sensor magnetik.
           </p>
 
           <button onClick={startCompass} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-emerald-600/30 transition-all active:scale-95 text-sm uppercase tracking-wider mt-2">
-            Sudah Saya Putar
+            Sudah Selesai
           </button>
         </div>
       )}
@@ -198,7 +235,6 @@ export default function KiblatPage() {
               className="absolute inset-0 rounded-full shadow-[0_0_40px_rgba(16,185,129,0.15)] bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950 border-[6px] border-emerald-50 dark:border-slate-800 flex items-center justify-center transition-transform duration-100 ease-linear"
               style={{ transform: `rotate(${-displayHeading}deg)` }}
             >
-              {/* Ornamen Garis Mata Angin */}
               <div className="absolute w-full h-full border border-emerald-200/40 dark:border-emerald-800/40 rounded-full scale-[0.85]"></div>
 
               <span className="absolute top-2 font-black text-emerald-600 dark:text-emerald-500 text-xl drop-shadow-md">N</span>
@@ -206,36 +242,30 @@ export default function KiblatPage() {
               <span className="absolute bottom-2 font-bold text-slate-400 text-sm">S</span>
               <span className="absolute left-4 font-bold text-slate-400 text-sm">W</span>
 
-              {/* Trik Logika Baru: Jarum Kiblat Ditanam Di Dalam Cincin Utara */}
-              {/* Jadi tidak perlu hitung pengurangan lagi, pasti nyangkut ke koordinat yang tepat! */}
+              {/* Jarum Kiblat Ditanam Di Dalam Cincin Utara */}
               <div className="absolute inset-0 flex items-center justify-center transition-transform duration-700 ease-out z-10" style={{ transform: `rotate(${qiblaTarget}deg)` }}>
-                {/* Desain Jarum Mewah */}
                 <div className="flex flex-col items-center transform -translate-y-[4.8rem]">
-                  {/* Ikon Ka'bah Minimalis SVG */}
                   <div className="w-10 h-10 bg-emerald-600 dark:bg-emerald-500 rounded-full flex items-center justify-center shadow-lg shadow-emerald-600/40 mb-1.5 border-2 border-white dark:border-slate-900 z-10">
                     <svg viewBox="0 0 24 24" className="w-5 h-5 text-white" fill="currentColor">
                       <path d="M5 4h14v16H5z" />
                       <path d="M5 9h14v2H5z" fill="#D4AF37" />
                     </svg>
                   </div>
-                  {/* Batang Jarum */}
                   <div className="w-1.5 h-16 bg-gradient-to-b from-emerald-600 to-transparent dark:from-emerald-500 rounded-full"></div>
                 </div>
               </div>
             </div>
 
-            {/* Pivot Center Point */}
             <div className="w-4 h-4 bg-emerald-600 dark:bg-emerald-400 rounded-full z-20 shadow-md border-[3px] border-white dark:border-slate-900"></div>
           </div>
 
           {/* INFORMASI KOORDINAT & TOMBOL FIX */}
           <div className="w-full flex flex-col gap-4 mt-2">
-            {/* Tombol Balik Arah (Penyelamat HP Sensor Terbalik) */}
             <button
               onClick={() => setIsFlipped(!isFlipped)}
-              className="mx-auto flex items-center gap-2 bg-slate-200/50 dark:bg-slate-800/50 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-full text-xs font-bold transition-colors border border-slate-300/50 dark:border-slate-700"
+              className="mx-auto flex items-center gap-2 bg-slate-200/50 dark:bg-slate-800/50 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 px-4 py-2 rounded-full text-[11px] font-bold transition-colors border border-slate-300/50 dark:border-slate-700"
             >
-              <span>{isFlipped ? '✅ Arah Dibalik' : '🔄 Jarum Berlawanan? Klik Ini'}</span>
+              <span>{isFlipped ? '✅ Kalibrasi Terbalik Aktif' : '🔄 Arah Jarum Terbalik? Klik Ini'}</span>
             </button>
 
             <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl p-5 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 w-full text-center">
