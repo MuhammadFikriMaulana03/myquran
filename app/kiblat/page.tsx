@@ -138,7 +138,7 @@ export default function KiblatPage() {
             {/* Cincin Kompas Luar (Berputar mengikuti HP) */}
             <div
               className="absolute inset-0 rounded-full border-[12px] border-emerald-100 dark:border-emerald-900/50 shadow-xl transition-transform duration-300 ease-out flex items-center justify-center"
-              style={{ transform: `rotate(${-compassHeading || 0}deg)` }}
+              style={{ transform: `rotate(${compassHeading !== null ? -compassHeading : 0}deg)` }}
             >
               <span className="absolute top-2 font-extrabold text-emerald-600 dark:text-emerald-400 text-lg">U</span>
               <span className="absolute right-4 font-bold text-slate-400 text-sm">T</span>
