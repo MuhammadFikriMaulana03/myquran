@@ -314,6 +314,20 @@ export default async function Home(props: PageProps) {
                 <p className="text-xs text-slate-400">Wirid & Al-Matsurat harian</p>
               </div>
             </Link>
+            <Link
+              href="/kiblat"
+              className="bg-white dark:bg-slate-900 p-5 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-md transition-all duration-300 group flex flex-col justify-between"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-inner">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zm-7.518-.267A8.25 8.25 0 1120.25 10.5M8.288 14.212A5.25 5.25 0 1117.25 10.5" />
+                </svg>
+              </div>
+              <div>
+                <h4 className="font-bold text-slate-800 dark:text-slate-100 text-base mb-0.5 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Arah Kiblat</h4>
+                <p className="text-xs text-slate-400">Kompas menuju Ka'bah</p>
+              </div>
+            </Link>
           </div>
         </div>
 
