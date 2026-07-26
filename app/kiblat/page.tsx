@@ -4,18 +4,19 @@
 import { useState, useEffect, useCallback } from 'react';
 import BackButton from '../../components/BackButton';
 
+// Definisikan tipe step aplikasi
+type Step = 'START' | 'CALIBRATION' | 'COMPASS';
+
 export default function KiblatPage() {
+  const [currentStep, setCurrentStep] = useState<Step>('START');
   const [qiblaBearing, setQiblaBearing] = useState<number | null>(null);
   const [compassHeading, setCompassHeading] = useState<number | null>(null);
   const [error, setError] = useState<string>('');
-  const [isCalibrating, setIsCalibrating] = useState<boolean>(false);
-  const [permissionGranted, setPermissionGranted] = useState<boolean>(false);
 
-  // Koordinat mutlak Ka'bah (Makkah)
   const KAABA_LAT = 21.422487;
   const KAABA_LNG = 39.826206;
 
-  // Rumus Trigonometri Bola untuk menghitung arah kiblat
+  // Rumus menghitung arah kiblat
   const calculateQibla = (lat: number, lng: number) => {
     const PI = Math.PI;
     const latK = KAABA_LAT * (PI / 180);
@@ -31,17 +32,60 @@ export default function KiblatPage() {
     return (qibla + 360) % 360;
   };
 
-  // Pengecekan Orientasi Sensor secara Aman (Type-Safe & Stabil)
+  // 1. Minta Izin Sensor (iOS & Android)
+  const requestPermissionAndCalibrate = async () => {
+    setError('');
+    try {
+      if (typeof window !== 'undefined' && window.DeviceOrientationEvent) {
+        const doe = window.DeviceOrientationEvent as any;
+
+        if (typeof doe.requestPermission === 'function') {
+          const permission = await doe.requestPermission();
+          if (permission !== 'granted') {
+            setError('Izin kompas ditolak oleh perangkat iOS Anda.');
+            return;
+          }
+        }
+
+        // Pindah ke layar kalibrasi sekaligus tarik data GPS di background
+        setCurrentStep('CALIBRATION');
+        fetchLocation();
+      } else {
+        setError('Sensor Kompas tidak didukung di perangkat ini (Gunakan HP).');
+      }
+    } catch (err) {
+      setError('Gagal meminta izin sensor.');
+    }
+  };
+
+  // Ambil lokasi GPS
+  const fetchLocation = () => {
+    if (!navigator.geolocation) {
+      setError('GPS tidak didukung di browser ini.');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const bearing = calculateQibla(position.coords.latitude, position.coords.longitude);
+        setQiblaBearing(bearing);
+      },
+      (err) => {
+        setError('Gagal membaca GPS. Pastikan Lokasi menyala.');
+      },
+      { enableHighAccuracy: true },
+    );
+  };
+
+  // Fungsi membaca putaran HP
   const handleOrientation = useCallback((event: Event) => {
-    // Mem-bypass TypeScript strict mode untuk properti non-standar iOS/Android
     const e = event as any;
     let heading: number | null = null;
 
     if (e.webkitCompassHeading !== undefined && e.webkitCompassHeading !== null) {
-      // Pembacaan Kompas untuk iOS (iPhone)
       heading = e.webkitCompassHeading;
+    } else if (e.absolute === true && e.alpha !== null && e.alpha !== undefined) {
+      heading = 360 - e.alpha;
     } else if (e.alpha !== null && e.alpha !== undefined) {
-      // Pembacaan Kompas untuk Android (360 - alpha)
       heading = 360 - e.alpha;
     }
 
@@ -50,62 +94,16 @@ export default function KiblatPage() {
     }
   }, []);
 
-  const getLocationAndQibla = () => {
-    if (!navigator.geolocation) {
-      setError('GPS tidak didukung di perangkat/browser Anda.');
-      return;
+  // 2. Selesai Kalibrasi, Mulai Kompas
+  const startCompass = () => {
+    if (typeof window !== 'undefined') {
+      window.addEventListener('deviceorientationabsolute', handleOrientation, true);
+      window.addEventListener('deviceorientation', handleOrientation, true);
     }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        const bearing = calculateQibla(latitude, longitude);
-        setQiblaBearing(bearing);
-      },
-      (err) => {
-        setError('Gagal membaca lokasi. Pastikan GPS (Lokasi) HP menyala dan diizinkan.');
-        console.error(err);
-      },
-      { enableHighAccuracy: true },
-    );
+    setCurrentStep('COMPASS');
   };
 
-  const startCompass = async () => {
-    setIsCalibrating(true);
-    setError('');
-
-    try {
-      if (typeof window !== 'undefined' && window.DeviceOrientationEvent) {
-        const doe = window.DeviceOrientationEvent as any;
-
-        // Cek jika perangkat butuh izin klik (seperti iOS 13+)
-        if (typeof doe.requestPermission === 'function') {
-          const permission = await doe.requestPermission();
-          if (permission === 'granted') {
-            setPermissionGranted(true);
-            window.addEventListener('deviceorientation', handleOrientation, true);
-            getLocationAndQibla();
-          } else {
-            setError('Izin kompas ditolak oleh pengaturan perangkat iOS Anda.');
-          }
-        } else {
-          // Untuk Android atau browser biasa
-          setPermissionGranted(true);
-          window.addEventListener('deviceorientationabsolute', handleOrientation, true);
-          window.addEventListener('deviceorientation', handleOrientation, true);
-          getLocationAndQibla();
-        }
-      } else {
-        setError('Sensor Kompas tidak terdeteksi di perangkat Anda (hanya berfungsi di HP).');
-      }
-    } catch (err) {
-      setError('Terjadi kesalahan sistem saat menyalakan sensor.');
-    } finally {
-      setIsCalibrating(false);
-    }
-  };
-
-  // Bersihkan memory event listener ketika pindah halaman
+  // Bersihkan sensor saat halaman ditutup
   useEffect(() => {
     return () => {
       if (typeof window !== 'undefined') {
@@ -115,11 +113,9 @@ export default function KiblatPage() {
     };
   }, [handleOrientation]);
 
-  // Pastikan tipe data valid saat akan digambar ke CSS
-  const safeCompassHeading = compassHeading !== null ? compassHeading : 0;
-  const safeQiblaBearing = qiblaBearing !== null ? qiblaBearing : 0;
-
-  // Derajat putaran jarum Makkah
+  // Anti-Null TypeScript untuk CSS
+  const safeHeading = compassHeading ?? 0;
+  const safeQibla = qiblaBearing ?? 0;
   const qiblaRotation = qiblaBearing !== null && compassHeading !== null ? qiblaBearing - compassHeading : 0;
 
   return (
@@ -128,69 +124,98 @@ export default function KiblatPage() {
         <BackButton />
       </div>
 
-      <div className="text-center mb-8">
+      <div className="text-center mb-6">
         <h1 className="text-3xl font-extrabold text-emerald-700 dark:text-emerald-400 mb-2">Arah Kiblat</h1>
-        <p className="text-slate-500 dark:text-slate-400 text-sm">Temukan arah presisi Ka'bah dari lokasi Anda.</p>
+        {currentStep === 'COMPASS' ? <p className="text-slate-500 dark:text-slate-400 text-sm">Menunjuk ke arah Makkah.</p> : <p className="text-slate-500 dark:text-slate-400 text-sm">Persiapan sensor kompas.</p>}
       </div>
 
-      {!permissionGranted ? (
-        <div className="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 text-center flex flex-col items-center gap-4 w-full">
-          <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-950 text-emerald-600 rounded-full flex items-center justify-center text-4xl mb-2">🧭</div>
-          <h3 className="font-bold text-lg">Akses Kompas & GPS</h3>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Kami memerlukan izin akses GPS dan Sensor Gyroscope untuk menentukan arah Kiblat Anda.</p>
-          <button onClick={startCompass} disabled={isCalibrating} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl shadow-md transition-all active:scale-95 disabled:opacity-50">
-            {isCalibrating ? 'Memuat Sensor...' : 'Aktifkan Sensor Arah'}
-          </button>
-          {error && <p className="text-red-500 text-xs mt-2 font-medium bg-red-50 dark:bg-red-950/30 p-2 rounded-lg">{error}</p>}
-        </div>
-      ) : (
-        <div className="flex flex-col items-center w-full">
-          {error && <p className="text-red-500 text-xs mb-4 text-center bg-red-50 dark:bg-red-950/30 p-2 rounded-lg">{error}</p>}
+      {error && <div className="w-full bg-red-100 dark:bg-red-900/40 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 p-3 rounded-xl text-sm text-center mb-6 font-medium">{error}</div>}
 
-          <div className="relative w-72 h-72 sm:w-80 sm:h-80 flex items-center justify-center my-8">
-            {/* Cincin Kompas Luar (Berputar menjaga arah Utara Hape) */}
+      {/* TAHAP 1: START */}
+      {currentStep === 'START' && !error && (
+        <div className="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 text-center flex flex-col items-center gap-4 w-full animate-in fade-in zoom-in duration-300">
+          <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-950 text-emerald-600 rounded-full flex items-center justify-center text-4xl mb-2 shadow-inner">🧭</div>
+          <h3 className="font-bold text-xl text-slate-800 dark:text-white">Akses Sensor</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
+            Untuk menemukan arah Kiblat dengan akurat, izinkan aplikasi ini mengakses <b>Lokasi (GPS)</b> dan <b>Sensor Gerak</b> HP Anda.
+          </p>
+          <button onClick={requestPermissionAndCalibrate} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-xl shadow-md transition-all active:scale-95 text-sm">
+            Lanjutkan
+          </button>
+        </div>
+      )}
+
+      {/* TAHAP 2: TUTORIAL KALIBRASI */}
+      {currentStep === 'CALIBRATION' && !error && (
+        <div className="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-800 text-center flex flex-col items-center gap-6 w-full animate-in fade-in slide-in-from-right duration-300">
+          <h3 className="font-bold text-xl text-slate-800 dark:text-white">Kalibrasi Kompas</h3>
+
+          <div className="relative w-32 h-32 flex items-center justify-center">
+            {/* Animasi Angka 8 */}
+            <div className="absolute text-emerald-500/20 dark:text-emerald-400/20 text-9xl">∞</div>
+            {/* Icon HP yang bergerak */}
+            <div className="text-4xl absolute z-10 animate-[spin_3s_linear_infinite] origin-bottom drop-shadow-lg">📱</div>
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400">Penting untuk Akurasi!</p>
+            <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+              Pegang HP Anda lalu putar membentuk <b>angka 8 (∞)</b> di udara selama 3-5 detik. Jauhkan dari benda bermagnet/besi.
+            </p>
+          </div>
+
+          <button onClick={startCompass} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-xl shadow-md transition-all active:scale-95 text-sm mt-2">
+            Saya Sudah Kalibrasi
+          </button>
+        </div>
+      )}
+
+      {/* TAHAP 3: KOMPAS AKTIF */}
+      {currentStep === 'COMPASS' && !error && (
+        <div className="flex flex-col items-center w-full animate-in fade-in duration-500">
+          {/* LINGKARAN KOMPAS */}
+          <div className="relative w-72 h-72 sm:w-80 sm:h-80 flex items-center justify-center my-6">
+            {/* Cincin Arah Mata Angin */}
             <div
-              className="absolute inset-0 rounded-full border-[12px] border-emerald-100 dark:border-emerald-900/50 shadow-xl transition-transform duration-[50ms] ease-linear flex items-center justify-center"
-              style={{ transform: `rotate(${-safeCompassHeading}deg)` }}
+              className="absolute inset-0 rounded-full border-[14px] border-emerald-50 dark:border-slate-800 shadow-2xl flex items-center justify-center transition-transform duration-100 ease-linear"
+              style={{ transform: `rotate(${-safeHeading}deg)` }}
             >
-              <span className="absolute top-2 font-extrabold text-emerald-600 dark:text-emerald-400 text-lg">U</span>
+              <span className="absolute top-3 font-black text-emerald-600 dark:text-emerald-400 text-xl">U</span>
               <span className="absolute right-4 font-bold text-slate-400 text-sm">T</span>
-              <span className="absolute bottom-2 font-bold text-slate-400 text-sm">S</span>
+              <span className="absolute bottom-3 font-bold text-slate-400 text-sm">S</span>
               <span className="absolute left-4 font-bold text-slate-400 text-sm">B</span>
 
-              {/* Garis pemanis kompas */}
-              <div className="w-full h-full border border-emerald-200/50 dark:border-emerald-800/50 rounded-full scale-75"></div>
+              <div className="w-full h-full border-2 border-emerald-100/50 dark:border-emerald-900/30 rounded-full scale-[0.85]"></div>
             </div>
 
-            {/* Jarum Kiblat (Menembak lurus ke Ka'bah) */}
-            <div className="absolute inset-0 flex items-center justify-center transition-transform duration-[50ms] ease-linear z-10" style={{ transform: `rotate(${qiblaRotation}deg)` }}>
-              <div className="flex flex-col items-center transform -translate-y-16">
-                <div className="w-0 h-0 border-l-[15px] border-r-[15px] border-b-[30px] border-transparent border-b-emerald-600 dark:border-b-emerald-400 mb-1 drop-shadow-md"></div>
-                <div className="bg-emerald-600 dark:bg-emerald-400 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md flex items-center gap-1">
-                  <span>🕋</span> Kiblat
+            {/* Jarum Kiblat */}
+            <div className="absolute inset-0 flex items-center justify-center transition-transform duration-100 ease-linear z-10" style={{ transform: `rotate(${qiblaRotation}deg)` }}>
+              <div className="flex flex-col items-center transform -translate-y-[4.5rem]">
+                <div className="w-0 h-0 border-l-[16px] border-r-[16px] border-b-[35px] border-transparent border-b-emerald-600 dark:border-b-emerald-400 mb-2 drop-shadow-md"></div>
+                <div className="bg-emerald-600 dark:bg-emerald-400 text-white text-[11px] font-black tracking-wider px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 border border-emerald-500 dark:border-emerald-300">
+                  <span>🕋</span> KIBLAT
                 </div>
               </div>
             </div>
 
-            {/* Titik Pivot Tengah */}
-            <div className="w-4 h-4 bg-emerald-800 dark:bg-emerald-300 rounded-full z-20 shadow-sm border-2 border-white dark:border-slate-800"></div>
+            {/* Titik Tengah */}
+            <div className="w-5 h-5 bg-emerald-800 dark:bg-emerald-300 rounded-full z-20 shadow-md border-4 border-white dark:border-slate-900"></div>
           </div>
 
-          <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 w-full text-center mt-4">
-            <p className="text-xs text-slate-400 uppercase tracking-widest mb-3 font-bold">Informasi Koordinat</p>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl">
-                <p className="text-[10px] text-slate-500 mb-1">Sudut Ka'bah</p>
-                <p className="font-bold text-emerald-600 dark:text-emerald-400">{qiblaBearing !== null ? `${safeQiblaBearing.toFixed(1)}°` : 'Menghitung...'}</p>
+          {/* INFORMASI KOORDINAT */}
+          <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 w-full text-center mt-6">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-slate-50 dark:bg-slate-800/40 p-3 rounded-2xl border border-slate-100 dark:border-slate-700/50">
+                <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1">Sudut Ka'bah</p>
+                <p className="font-black text-lg text-emerald-700 dark:text-emerald-400">{qiblaBearing !== null ? `${safeQibla.toFixed(1)}°` : '...'}</p>
               </div>
-              <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-xl">
-                <p className="text-[10px] text-slate-500 mb-1">Arah HP Anda</p>
-                <p className="font-bold text-emerald-600 dark:text-emerald-400">{compassHeading !== null ? `${safeCompassHeading.toFixed(1)}°` : 'Mendeteksi...'}</p>
+              <div className="bg-slate-50 dark:bg-slate-800/40 p-3 rounded-2xl border border-slate-100 dark:border-slate-700/50">
+                <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-1">Arah HP</p>
+                <p className="font-black text-lg text-slate-700 dark:text-slate-300">{compassHeading !== null ? `${safeHeading.toFixed(1)}°` : '...'}</p>
               </div>
             </div>
-            <p className="text-[11px] italic text-slate-400 mt-4 leading-relaxed">
-              *Jauhkan HP dari benda magnetik. Gerakkan HP membentuk angka 8 <b>(∞)</b> di udara untuk mengkalibrasi arah kompas.
-            </p>
+
+            {!qiblaBearing && <p className="text-xs text-amber-500 mt-4 animate-pulse font-medium">⏳ Sedang mengunci lokasi GPS...</p>}
           </div>
         </div>
       )}
