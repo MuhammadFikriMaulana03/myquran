@@ -94,7 +94,6 @@ export default function HaditsPage() {
               className="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
             />
           </div>
-          {/* Dropdown dengan Angka Total */}
           <select
             value={selectedPerawi}
             onChange={(e) => {
@@ -162,7 +161,7 @@ export default function HaditsPage() {
           haditsList.map((item, idx) => (
             <div
               key={idx}
-              className="group bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-emerald-500/50 dark:hover:border-emerald-500/50 p-6 md:p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 space-y-5 relative"
+              className="group bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-emerald-500/50 dark:hover:border-emerald-500/50 p-4 md:p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 space-y-5 relative"
             >
               {/* Header Card */}
               <div className="flex justify-between items-center">
@@ -181,9 +180,9 @@ export default function HaditsPage() {
                 </div>
               </div>
 
-              {/* Teks Arab */}
-              <div className="bg-slate-50/60 dark:bg-slate-950/40 p-5 md:p-6 rounded-2xl border border-slate-100 dark:border-slate-800/60">
-                <p className="text-right text-2xl md:text-3xl font-arabic leading-[2.2] text-slate-900 dark:text-slate-100">{item.arab}</p>
+              {/* Teks Arab: Dioptimalkan agar lebih menyamping & muat banyak di mobile */}
+              <div className="bg-slate-50/60 dark:bg-slate-950/40 p-4 md:p-6 rounded-2xl border border-slate-100 dark:border-slate-800/60">
+                <p className="text-right text-xl sm:text-2xl md:text-3xl font-arabic leading-[2.2] md:leading-[2.4] text-slate-900 dark:text-slate-100 tracking-wide">{item.arab}</p>
               </div>
 
               {/* Teks Terjemahan */}
