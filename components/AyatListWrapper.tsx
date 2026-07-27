@@ -46,6 +46,9 @@ const juzStarts = [
 
 export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: AyatListWrapperProps) {
   const [viewMode, setViewMode] = useState<'terjemah' | 'mushaf'>('terjemah');
+
+  // 🌟 State Mode Tajwid (Default: ON)
+  const [isTajwidActive, setIsTajwidActive] = useState<boolean>(true);
   const [selectedAyat, setSelectedAyat] = useState<any | null>(null);
 
   const toArabicNumber = (num: number) => {
@@ -57,10 +60,60 @@ export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: Aya
       .join('');
   };
 
+  // 🌟 MESIN PENGURAI WARNA TAJWID OTOMATIS DI SEMUA AYAT 🌟
+  const renderTajwidText = (text: string) => {
+    if (!isTajwidActive || !text) return text;
+
+    const parts: (string | React.ReactNode)[] = [];
+    // Regex mendeteksi hukum utama: Ghunnah (Tasydid), Qalqalah (Huruf mati), dan Nun Sukun/Tanwin
+    const regex = /([نم]ّ|[قطبجد]ْ|[نًٌٍْ])/g;
+    let lastIndex = 0;
+    let match;
+    let keyCounter = 0;
+
+    while ((match = regex.exec(text)) !== null) {
+      if (match.index > lastIndex) {
+        parts.push(text.substring(lastIndex, match.index));
+      }
+
+      const matchedStr = match[0];
+      if (matchedStr.includes('ّ')) {
+        // Warna Amber/Jingga untuk Ghunnah / Tasydid
+        parts.push(
+          <span key={keyCounter++} className="text-amber-500 font-bold">
+            {matchedStr}
+          </span>,
+        );
+      } else if (['ق', 'ط', 'ب', 'ج', 'د'].some((char) => matchedStr.includes(char))) {
+        // Warna Biru untuk Huruf Qalqalah (Pantulan)
+        parts.push(
+          <span key={keyCounter++} className="text-blue-500 font-semibold">
+            {matchedStr}
+          </span>,
+        );
+      } else {
+        // Warna Ungu untuk Nun Sukun / Tanwin (Ikhfa/Idgham/Iqlab)
+        parts.push(
+          <span key={keyCounter++} className="text-purple-500 font-semibold">
+            {matchedStr}
+          </span>,
+        );
+      }
+
+      lastIndex = regex.lastIndex;
+    }
+
+    if (lastIndex < text.length) {
+      parts.push(text.substring(lastIndex));
+    }
+
+    return parts.length > 0 ? parts : text;
+  };
+
   return (
     <div className="w-full relative">
-      {/* 🌟 TOGGLE MODE BACA 🌟 */}
-      <div className="flex justify-center mb-8 sticky top-4 z-30">
+      {/* 🌟 TOGGLE MODE BACA & TOMBOL TAJWID 🌟 */}
+      <div className="flex flex-col sm:flex-row justify-center items-center gap-3 mb-8 sticky top-4 z-30">
         <div className="flex bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-1.5 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-800 gap-1 transition-colors duration-300">
           <button
             onClick={() => setViewMode('terjemah')}
@@ -79,16 +132,27 @@ export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: Aya
             📖 Mode Mushaf
           </button>
         </div>
+
+        {/* Tombol ON / OFF Tajwid Warna */}
+        <button
+          onClick={() => setIsTajwidActive(!isTajwidActive)}
+          className={`px-4 py-3 rounded-2xl font-bold text-xs shadow-lg backdrop-blur-md border transition-all cursor-pointer flex items-center gap-2 ${
+            isTajwidActive ? 'bg-amber-500 text-white border-amber-400 shadow-amber-500/20' : 'bg-white/90 dark:bg-slate-900/90 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800'
+          }`}
+        >
+          <span>🎨</span>
+          <span>{isTajwidActive ? 'Tajwid Warna: ON' : 'Tajwid Warna: OFF'}</span>
+        </button>
       </div>
 
       <div className="animate-in fade-in duration-500">
         {/* ========================================= */}
-        {/* MODE 1: TERJEMAHAN */}
+        {/* MODE 1: TERJEMAHAN (Semua Ayat Berwarna Tajwid) */}
         {/* ========================================= */}
         {viewMode === 'terjemah' && (
           <div className="space-y-6">
             {ayatList.map((item: any, index: number) => {
-              const teksArab = item.teksArab || item.ar || item.arab || item.text || item.teks || '';
+              const rawArab = item.teksArab || item.ar || item.arab || item.text || item.teks || '';
               const teksLatin = item.teksLatin || item.tr || item.latin || item.transliteration || '';
               const teksArti = item.teksIndonesia || item.idn || item.arti || item.terjemahan || '';
               const nomorAyat = item.nomorAyat || item.nomor || index + 1;
@@ -103,17 +167,29 @@ export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: Aya
                       <div className="absolute inset-0 flex items-center" aria-hidden="true">
                         <div className="w-full border-t-2 border-emerald-200 dark:border-emerald-800/60 transition-colors"></div>
                       </div>
-
-                      <div className="relative flex items-center justify-center bg-gradient-to-r from-emerald-600 to-emerald-800 dark:from-emerald-800 dark:to-emerald-950 px-8 py-3.5 rounded-full shadow-lg shadow-emerald-600/30 border-[3px] border-white dark:border-slate-900 group-hover:scale-105 transition-transform duration-300">
+                      <div className="relative flex items-center justify-center bg-gradient-to-r from-emerald-600 to-emerald-800 dark:from-emerald-800 dark:to-emerald-950 px-8 py-3.5 rounded-full shadow-lg shadow-emerald-600/30 border-[3px] border-white dark:border-slate-900">
                         <span className="text-amber-400 text-lg mr-3 drop-shadow-md">۞</span>
                         <span className="text-white font-black tracking-[0.2em] uppercase text-xs md:text-sm drop-shadow-md">Permulaan Juz {startJuzData.juz}</span>
                         <span className="text-amber-400 text-lg ml-3 drop-shadow-md">۞</span>
-                        <div className="absolute -inset-1 bg-emerald-400/20 blur-lg rounded-full -z-10"></div>
                       </div>
                     </div>
                   )}
 
-                  <AyatItem nomorSurat={nomorSurat} namaSurat={namaSurat} nomorAyat={nomorAyat} arab={teksArab} latin={teksLatin} arti={teksArti} audioUrl={audioAyat} />
+                  {/* Kartu Ayat dengan Teks Arab Tajwid Aktif */}
+                  <div className="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800">
+                    <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
+                      <div className="w-10 h-10 flex items-center justify-center bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 font-bold rounded-xl">{nomorAyat}</div>
+                    </div>
+
+                    <p className="text-3xl md:text-4xl text-slate-800 dark:text-slate-100 font-serif leading-[2.5] text-right mb-6" dir="rtl">
+                      {renderTajwidText(rawArab)}
+                    </p>
+
+                    <div className="space-y-3 pt-4 border-t border-slate-50 dark:border-slate-800/50">
+                      <p className="text-emerald-700 dark:text-emerald-400 italic font-medium">{teksLatin || 'Cara baca tidak tersedia'}</p>
+                      <p className="text-slate-600 dark:text-slate-300 leading-relaxed">{teksArti || 'Artinya tidak tersedia'}</p>
+                    </div>
+                  </div>
                 </div>
               );
             })}
@@ -121,13 +197,13 @@ export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: Aya
         )}
 
         {/* ========================================= */}
-        {/* MODE 2: MUSHAF */}
+        {/* MODE 2: MUSHAF (Semua Ayat Tersambung & Berwarna Tajwid) */}
         {/* ========================================= */}
         {viewMode === 'mushaf' && (
           <div className="bg-white dark:bg-slate-900 p-5 sm:p-8 md:p-12 rounded-2xl md:rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors duration-300">
             <div className="text-right text-[26px] sm:text-[32px] md:text-[40px] leading-[2.4] sm:leading-[2.8] md:leading-[3] font-serif text-slate-800 dark:text-slate-100" dir="rtl">
               {ayatList.map((item: any, index: number) => {
-                const teksArab = item.teksArab || item.ar || item.arab || item.text || item.teks || '';
+                const rawArab = item.teksArab || item.ar || item.arab || item.text || item.teks || '';
                 const nomorAyat = item.nomorAyat || item.nomor || index + 1;
 
                 const startJuzData = juzStarts.find((j) => j.surat === nomorSurat && j.ayat === nomorAyat);
@@ -144,8 +220,8 @@ export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: Aya
                       </div>
                     )}
 
-                    <span onClick={() => setSelectedAyat(item)} className="cursor-pointer hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors rounded px-1 group relative" title="Ketuk untuk melihat terjemahan">
-                      {teksArab}
+                    <span onClick={() => setSelectedAyat(item)} className="cursor-pointer hover:opacity-80 transition-opacity rounded px-1 group relative" title="Ketuk untuk melihat terjemahan">
+                      {renderTajwidText(rawArab)}
 
                       <span className="inline-flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-sans mx-1.5 md:mx-2 text-xl md:text-2xl select-none">
                         <span className="font-bold opacity-80">﴿</span>
@@ -163,16 +239,13 @@ export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: Aya
         )}
       </div>
 
-      {/* ========================================= */}
-      {/* POPUP MODAL DINAMIS (Aman untuk Ayat Panjang) */}
-      {/* ========================================= */}
+      {/* POPUP MODAL TERJEMAHAN DINAMIS */}
       {selectedAyat && (
         <div onClick={() => setSelectedAyat(null)} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
           <div
             onClick={(e) => e.stopPropagation()}
             className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative animate-in zoom-in-95 duration-300 text-left max-h-[85vh] flex flex-col"
           >
-            {/* Tombol Close (Sticky di atas, tidak akan ikut tergeser) */}
             <button
               onClick={() => setSelectedAyat(null)}
               className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 flex items-center justify-center font-bold text-sm transition-colors cursor-pointer z-10 shadow-sm"
@@ -180,7 +253,6 @@ export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: Aya
               ✕
             </button>
 
-            {/* Header Info */}
             <div className="flex items-center gap-2 mb-4 pr-10">
               <span className="bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 font-bold px-3 py-1 rounded-xl text-xs border border-emerald-200 dark:border-emerald-800/50">
                 Ayat {selectedAyat.nomorAyat || selectedAyat.nomor}
@@ -188,14 +260,11 @@ export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: Aya
               <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">{namaSurat}</span>
             </div>
 
-            {/* 🌟 KOTAK KONTEN YANG BISA DI-SCROLL SENDIRI JIKA PANJANG 🌟 */}
-            <div className="overflow-y-auto pr-2 space-y-4 custom-scrollbar">
-              {/* Teks Arab */}
+            <div className="overflow-y-auto pr-2 space-y-4">
               <p className="text-2xl sm:text-3xl font-serif text-right text-slate-800 dark:text-slate-100 leading-[2.2]" dir="rtl">
-                {selectedAyat.teksArab || selectedAyat.ar || selectedAyat.arab || selectedAyat.text || selectedAyat.teks}
+                {renderTajwidText(selectedAyat.teksArab || selectedAyat.ar || selectedAyat.arab || selectedAyat.text || selectedAyat.teks)}
               </p>
 
-              {/* Terjemahan & Latin */}
               <div className="space-y-2 pt-4 border-t border-slate-100 dark:border-slate-800">
                 <p className="text-xs text-emerald-600 dark:text-emerald-400 italic font-medium leading-relaxed">{selectedAyat.teksLatin || selectedAyat.tr || selectedAyat.latin || selectedAyat.transliteration}</p>
                 <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed font-normal">{selectedAyat.teksIndonesia || selectedAyat.idn || selectedAyat.arti || selectedAyat.terjemahan}</p>

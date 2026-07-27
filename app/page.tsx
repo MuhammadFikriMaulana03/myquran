@@ -328,6 +328,18 @@ export default async function Home(props: PageProps) {
                 <p className="text-xs text-slate-400">Kompas menuju Ka'bah</p>
               </div>
             </Link>
+            <Link
+              href="/tajwid"
+              className="bg-white dark:bg-slate-900 p-5 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-md transition-all duration-300 group flex flex-col justify-between"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-inner text-xl">
+                📖
+              </div>
+              <div>
+                <h4 className="font-bold text-slate-800 dark:text-slate-100 text-base mb-0.5 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">Panduan Tajwid</h4>
+                <p className="text-xs text-slate-400">Hukum & cara baca lengkap</p>
+              </div>
+            </Link>
           </div>
         </div>
 
