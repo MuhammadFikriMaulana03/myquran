@@ -1,491 +1,231 @@
-// src/app/hadits/page.tsx
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-
-const daftarHadits = [
-  {
-    id: 1,
-    judul: 'Niat dan Keikhlasan Amal',
-    perawi: 'HR. Bukhari & Muslim',
-    kategori: 'Bukhari & Muslim',
-    arab: 'إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى',
-    latin: "Innamal a'malu bin-niyyati wa innamaa likullimri'in maa nawaa.",
-    arti: 'Sesungguhnya segala amal itu tergantung niatnya, dan sesungguhnya bagi setiap orang apa yang ia niatkan.',
-  },
-  {
-    id: 2,
-    judul: 'Keutamaan Belajar & Mengajar Al-Quran',
-    perawi: 'HR. Bukhari',
-    kategori: 'Bukhari',
-    arab: 'خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ',
-    latin: "Khairukum man ta'allamal-qur'ana wa 'allamahu.",
-    arti: 'Sebaik-baik kalian adalah orang yang mempelajari Al-Quran dan mengajarkannya.',
-  },
-  {
-    id: 3,
-    judul: 'Berbicara Baik atau Diam',
-    perawi: 'HR. Bukhari & Muslim',
-    kategori: 'Bukhari & Muslim',
-    arab: 'مَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الآخِرِ فَلْيَقُلْ خَيْرًا أَوْ لِيَصْمُتْ',
-    latin: "Man kana yu'minu billahi wal-yawmil-akhiri falyaqul khairan aw liyashmut.",
-    arti: 'Barangsiapa yang beriman kepada Allah dan Hari Akhir, maka hendaklah ia berkata baik atau diam.',
-  },
-  {
-    id: 4,
-    judul: 'Keutamaan Sifat Malu',
-    perawi: 'HR. Bukhari & Muslim',
-    kategori: 'Bukhari & Muslim',
-    arab: 'الْحَيَاءُ شُعْبَةٌ مِنَ الإِيمَانِ',
-    latin: "Al-haya'u syu'batun minal-iman.",
-    arti: 'Malu adalah salah satu cabang dari iman.',
-  },
-  {
-    id: 5,
-    judul: 'Mencintai Saudara Seperti Diri Sendiri',
-    perawi: 'HR. Bukhari & Muslim',
-    kategori: 'Bukhari & Muslim',
-    arab: 'لَا يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبُّ لِأَخِيهِ مَا يُحِبُّ لِنَفْسِهِ',
-    latin: "La yu'minu ahadukum hatta yuhibba li'akhihi ma yuhibbu linafsih.",
-    arti: 'Tidak beriman salah seorang di antara kalian hingga ia mencintai untuk saudaranya apa yang ia cintai untuk dirinya sendiri.',
-  },
-  {
-    id: 6,
-    judul: 'Senyuman adalah Sedekah',
-    perawi: 'HR. Tirmidzi',
-    kategori: 'Tirmidzi',
-    arab: 'تَبَسُّمُكَ فِي وَجْهِ أَخِيكَ صَدَقَةٌ',
-    latin: 'Tabassumuka fi wajhi akhika sadaqah.',
-    arti: 'Senyummu di hadapan saudaramu adalah sedekah bagimu.',
-  },
-  {
-    id: 7,
-    judul: 'Kebersihan Sebagian dari Iman',
-    perawi: 'HR. Muslim',
-    kategori: 'Muslim',
-    arab: 'الطُّهُورُ شَطْرُ الإِيمَانِ',
-    latin: 'At-tahuru syathrul iman.',
-    arti: 'Kesucian (kebersihan) adalah separuh dari iman.',
-  },
-  {
-    id: 8,
-    judul: 'Keutamaan Menuntut Ilmu',
-    perawi: 'HR. Muslim',
-    kategori: 'Muslim',
-    arab: 'مَنْ سَلَكَ طَرِيقًا يَلْتَمِسُ فِيهِ عِلْمًا سَهَّلَ اللَّهُ لَهُ بِهِ طَرِيقًا إِلَى الْجَنَّةِ',
-    latin: 'Man salaka thariqan yaltamisu fihi ilman sahalallahu lahu bihi thariqan ilal-jannah.',
-    arti: 'Barangsiapa menempuh suatu jalan untuk mencari ilmu, maka Allah akan mudahkan baginya jalan menuju surga.',
-  },
-  {
-    id: 9,
-    judul: 'Keutamaan Menahan Marah',
-    perawi: 'HR. Bukhari',
-    kategori: 'Bukhari',
-    arab: 'لَا تَغْضَبْ وَلَكَ الْجَنَّةُ',
-    latin: 'La taghdhab wa lakal-jannah.',
-    arti: 'Janganlah kamu marah, maka bagimu surga.',
-  },
-  {
-    id: 10,
-    judul: 'Kekuatan Doa',
-    perawi: 'HR. Tirmidzi',
-    kategori: 'Tirmidzi',
-    arab: 'الدُّعَاءُ هُوَ الْعِبَادَةُ',
-    latin: "Ad-du'a huwal-ibadah.",
-    arti: 'Doa adalah inti dari ibadah.',
-  },
-  {
-    id: 11,
-    judul: 'Menjaga Lisan dan Kemaluan',
-    perawi: 'HR. Tirmidzi',
-    kategori: 'Tirmidzi',
-    arab: 'مَنْ وَقَاهُ اللَّهُ شَرَّ مَا بَيْنَ لَحْيَيْهِ وَشَرَّ مَا بَيْنَ رِجْلَيْهِ دَخَلَ الْجَنَّةَ',
-    latin: 'Man waqahullahu syarra ma baina lahyaihi wa syarra ma baina rijlaihi dakhalal-jannah.',
-    arti: 'Barangsiapa yang diselamatkan Allah dari kejahatan yang ada di antara dua rahangnya (lisan) dan kejahatan di antara kedua kakinya (kemaluan), maka ia akan masuk surga.',
-  },
-  {
-    id: 12,
-    judul: 'Kasih Sayang Antar Sesama',
-    perawi: 'HR. Tirmidzi',
-    kategori: 'Tirmidzi',
-    arab: 'الرَّاحِمُونَ يَرْحَمُهُمُ الرَّحْمَنُ، ارْحَمُوا مَنْ فِي الأَرْضِ يَرْحَمْكُمْ مَنْ فِي السَّمَاءِ',
-    latin: "Ar-rahimuna yarhamuhumur-rahman, irhamu man fil-ardhi yarhamkum man fis-sama'.",
-    arti: 'Orang-orang yang penyayang akan disayangi oleh Allah Yang Maha Penyayang. Sayangilah penduduk bumi, niscaya Zat yang di langit akan menyayangi kalian.',
-  },
-  {
-    id: 13,
-    judul: 'Memuliakan Tetangga dan Tamu',
-    perawi: 'HR. Bukhari & Muslim',
-    kategori: 'Bukhari & Muslim',
-    arab: 'مَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الآخِرِ فَلْيُكْرِمْ جَارَهُ، وَمَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الآخِرِ فَلْيُكْرِمْ ضَيْفَهُ',
-    latin: "Man kana yu'minu billahi wal-yawmil-akhiri falyukrim jarahu, wa man kana yu'minu billahi wal-yawmil-akhiri falyukrim daifahu.",
-    arti: 'Barangsiapa beriman kepada Allah dan Hari Akhir, hendaklah ia memuliakan tetangganya. Dan barangsiapa beriman kepada Allah dan Hari Akhir, hendaklah ia memuliakan tamunya.',
-  },
-  {
-    id: 14,
-    judul: 'Larangan Berburuk Sangka',
-    perawi: 'HR. Bukhari & Muslim',
-    kategori: 'Bukhari & Muslim',
-    arab: 'إِيَّاكُمْ وَالظَّنَّ فَإِنَّ الظَّنَّ أَكْذَبُ الْحَدِيثِ',
-    latin: "Iyyakum waz-zhanna fa'innaz-zhanna akdhabul-hadits.",
-    arti: 'Berhati-hatilah kalian dari prasangka buruk, karena prasangka buruk adalah perkataan yang paling dusta.',
-  },
-  {
-    id: 15,
-    judul: 'Keutamaan Sholat Berjamaah',
-    perawi: 'HR. Bukhari & Muslim',
-    kategori: 'Bukhari & Muslim',
-    arab: 'صَلَاةُ الْجَمَاعَةِ تَفْضُلُ صَلَاةَ الْفَذِّ بِسَبْعٍ وَعِشْرِينَ دَرَجَةً',
-    latin: "Salatul-jama'ati tafdhalu salatal-faddhi bisab'in wa 'isyrina darajatan.",
-    arti: 'Sholat berjamaah lebih utama 27 derajat daripada sholat sendirian.',
-  },
-  {
-    id: 16,
-    judul: 'Keutamaan Membaca Istighfar',
-    perawi: 'HR. Abu Dawud',
-    kategori: 'Abu Dawud',
-    arab: 'مَنْ لَزِمَ الِاسْتِغْفَارَ جَعَلَ اللَّهُ لَهُ مِنْ كُلِّ ضِيقٍ مَخْرَجًا، وَمِنْ كُلِّ هَمٍّ فَرَجًا',
-    latin: "Man lazimal-istighfara ja'alallahu lahu min kulli dhiiqin makhrajan, wa min kulli hammin faraja.",
-    arti: 'Barangsiapa yang istiqomah beristighfar, niscaya Allah memberikan jalan keluar bagi setiap kesempitannya dan kelapangan bagi setiap kesusahannya.',
-  },
-  {
-    id: 17,
-    judul: 'Adab Makan Menggunakan Tangan Kanan',
-    perawi: 'HR. Muslim',
-    kategori: 'Muslim',
-    arab: 'يَا غُلَامُ، سَمِّ اللَّهَ، وَكُلْ بِيَمِينِكَ، وَكُلْ مِمَّا يَلِيكَ',
-    latin: 'Ya ghulamu, sammillaha, wa kul biyaminika, wa kul mimma yalik.',
-    arti: 'Wahai anak, sebutlah nama Allah (baca Bismillah), makanlah dengan tangan kananmu, dan makanlah apa yang ada di dekatmu.',
-  },
-  {
-    id: 18,
-    judul: 'Keutamaan Menyambung Silaturahmi',
-    perawi: 'HR. Bukhari',
-    kategori: 'Bukhari',
-    arab: 'مَنْ أَحَبَّ أَنْ يُبْسَطَ لَهُ فِي رِزْقِهِ، وَيُنْسَأَ لَهُ فِي أَثَرِهِ، فَلْيَصِلْ رَحِمَهُ',
-    latin: "Man ahabba an yubsatha lahu fi rizqihi, wa yuns'a lahu fi atsarihi, falyashil rahimah.",
-    arti: 'Barangsiapa yang ingin diluaskan rezekinya dan dipanjangkan umurnya (bekas peninggalan kebaikannya), maka hendaklah ia menyambung silaturahmi.',
-  },
-  {
-    id: 19,
-    judul: 'Sedekah Menghapus Kesalahan',
-    perawi: 'HR. Tirmidzi',
-    kategori: 'Tirmidzi',
-    arab: 'وَالصَّدَقَةُ تُطْفِئُ الْخَطِيئَةَ كَمَا يُطْفِئُ الْمَاءُ النَّارَ',
-    latin: "Was-shadaqatu tuthfi'ul-khathi'ata kama yuthfi'ul-ma'u an-nar.",
-    arti: 'Dan sedekah dapat menghapuskan kesalahan (dosa) sebagaimana air memadamkan api.',
-  },
-  {
-    id: 20,
-    judul: 'Mencari Rezeki yang Halal',
-    perawi: 'HR. Thabrani',
-    kategori: 'Lainnya',
-    arab: 'طَلَبُ الْحَلَالِ وَاجِبٌ عَلَى كُلِّ مُسْلِمٍ',
-    latin: "Thalabul-halali wajibun 'ala kulli muslim.",
-    arti: 'Mencari rezeki yang halal adalah kewajiban bagi setiap Muslim.',
-  },
-  {
-    id: 21,
-    judul: 'Berbakti kepada Kedua Orang Tua',
-    perawi: 'HR. Bukhari & Muslim',
-    kategori: 'Bukhari & Muslim',
-    arab: 'رِضَا الرَّبِّ فِي رِضَا الْوَالِدَيْنِ، وَسَخَطُ الرَّبِّ فِي سَخَطِ الْوَالِدَيْنِ',
-    latin: 'Ridar-rabbi fi ridal-walidaini, wa sakhatur-rabbi fi sakhatil-walidain.',
-    arti: 'Keridaan Tuhan terletak pada keridaan kedua orang tua, dan kemurkaan Tuhan terletak pada kemurkaan kedua orang tua.',
-  },
-  {
-    id: 22,
-    judul: 'Keutamaan Sholat Malam (Tahajud)',
-    perawi: 'HR. Muslim',
-    kategori: 'Muslim',
-    arab: 'أَفْضَلُ الصَّلَاةِ بَعْدَ الصَّلَاةِ الْمَكْتُوبَةِ صَلَاةُ اللَّيْلِ',
-    latin: "Afdhalus-shalati ba'das-shalatil-maktubati salatul-lail.",
-    arti: 'Sebaik-baik sholat setelah sholat fardhu adalah sholat malam (tahajud).',
-  },
-  {
-    id: 23,
-    judul: 'Larangan Saling Mendengki',
-    perawi: 'HR. Muslim',
-    kategori: 'Muslim',
-    arab: 'وَلَا تَحَاسَدُوا، وَلَا تَبَاغَضُوا، وَلَا تَدَابَرُوا، وَكُونُوا عِبَادَ اللَّهِ إِخْوَانًا',
-    latin: "Wa la tahasadu, wa la taba-ghadu, wa la tadabaru, wa kunu 'ibadallahi ikhwanan.",
-    arti: 'Janganlah kalian saling mendengki, saling membenci, saling membelakangi, dan jadilah kalian hamba-hamba Allah yang bersaudara.',
-  },
-  {
-    id: 24,
-    judul: 'Keutamaan Membaca Ayat Kursi',
-    perawi: "HR. An-Nasa'i",
-    kategori: "An-Nasa'i",
-    arab: 'مَنْ قَرَأَ آيَةَ الْكُرْسِيِّ دُبُرَ كُلِّ صَلَاةٍ مَكْتُوبَةٍ لَمْ يَمْنَعْهُمْ مِنْ دُخُولِ الْجَنَّةِ إِلَّا أَنْ يَمُوتَ',
-    latin: "Man qara'a ayatal-kursiyyi dubura kulli shalatin maktubatin lam yamna'hum min dukhulil-jannati illa an yamuta.",
-    arti: 'Barangsiapa membaca Ayat Kursi setiap selesai sholat fardhu, maka tidak ada yang menghalanginya masuk surga kecuali kematian.',
-  },
-  {
-    id: 25,
-    judul: 'Keutamaan Sholat Tepat Pada Waktunya',
-    perawi: 'HR. Bukhari & Muslim',
-    kategori: 'Bukhari & Muslim',
-    arab: 'أَحَبُّ الأَعْمَالِ إِلَى اللَّهِ الصَّلَاةُ لِوَقْتِهَا',
-    latin: "Ahabbul-a'mali ilallahi ash-shalatu liwaqtiha.",
-    arti: 'Amalan yang paling dicintai oleh Allah adalah sholat pada waktunya.',
-  },
-  {
-    id: 26,
-    judul: 'Menjaga Amanah',
-    perawi: 'HR. Bukhari',
-    kategori: 'Bukhari',
-    arab: 'آيَةُ الْمُنَافِقِ ثَلَاثٌ: إِذَا حَدَّثَ كَذَبَ، وَإِذَا وَعَدَ أَخْلَفَ، وَإِذَا اؤْتُمِنَ خَانَ',
-    latin: "Ayatul-munafiqi thalatsun: idza hadatsa kadzaba, wa idza wa'ada akhlafa, wa idza u'tumina khana.",
-    arti: 'Tanda-tanda orang munafik itu ada tiga: jika berbicara ia berdusta, jika berjanji ia mengingkari, dan jika dipercaya ia berkhianat.',
-  },
-  {
-    id: 27,
-    judul: 'Berbuat Baik kepada Hewan',
-    perawi: 'HR. Bukhari & Muslim',
-    kategori: 'Bukhari & Muslim',
-    arab: 'فِي كُلِّ كَبِدٍ رَطْبَةٍ أَجْرٌ',
-    latin: 'Fi kulli kabidin rathbatin ajrun.',
-    arti: 'Pada setiap makhluk yang bernyawa (yang hatinya basah) terdapat pahala (dalam berbuat baik kepadanya).',
-  },
-  {
-    id: 28,
-    judul: 'Keutamaan Memberi Salam',
-    perawi: 'HR. Muslim',
-    kategori: 'Muslim',
-    arab: 'لَا تَدْخُلُونَ الْجَنَّةَ حَتَّى تُؤْمِنُوا، وَلَا تُؤْمِنُوا حَتَّى تَحَابُّوا، أَوَلَا أَدُلُّكُمْ عَلَى شَيْءٍ إِذَا فَعَلْتُمُوهُ تَحَابَبْتُمْ؟ أَفْشُوا السَّلَامَ بَيْنَكُمْ',
-    latin: "La tadkhulunal-jannata hatta tu'minu, wa la tu'minu hatta tahabbu, awala adullukum 'ala syai'in idza fa'altumuhu tahababtum? Afsyus-salama bainakum.",
-    arti: 'Kalian tidak akan masuk surga hingga kalian beriman, dan kalian tidak beriman secara sempurna sebelum kalian saling mencintai. Maukah kalian aku tunjukkan sesuatu yang jika kalian lakukan kalian akan saling mencintai? Sebarkanlah salam di antara kalian.',
-  },
-  {
-    id: 29,
-    judul: 'Keutamaan Membaca Surah Al-Kahfi pada Hari Jumat',
-    perawi: 'HR. Hakim & Baihaqi',
-    kategori: 'Lainnya',
-    arab: 'مَنْ قَرَأَ سُورَةَ الْكَهْفِ فِي يَوْمِ الْجُمُعَةِ أَضَاءَ لَهُ مِنَ النُّورِ مَا بَيْنَ الْجُمُعَتَيْنِ',
-    latin: "Man qara'a suratal-kahfi fi yawmil-jum'ati adha'a lahu minan-nuri ma bainal-jum'atain.",
-    arti: 'Barangsiapa membaca Surah Al-Kahfi pada hari Jumat, maka ia akan disinari cahaya di antara dua Jumat.',
-  },
-  {
-    id: 30,
-    judul: 'Keutamaan Sholat Sunnah Rawatib Qabliyah Subuh',
-    perawi: 'HR. Muslim',
-    kategori: 'Muslim',
-    arab: 'رَكْعَتَا الْفَجْرِ خَيْرٌ مِنَ الدُّنْيَا وَمَا فِيهَا',
-    latin: "Rark'atal-fajri khairun minad-dunya wa ma fiha.",
-    arti: 'Dua rakaat sholat fajar (sunnah subuh) lebih baik daripada dunia dan seisinya.',
-  },
-  {
-    id: 31,
-    judul: 'Larangan Mengambil Hak Orang Lain (Zhalim)',
-    perawi: 'HR. Muslim',
-    kategori: 'Muslim',
-    arab: 'اتَّقُوا الظُّلْمَ فَإِنَّ الظُّلْمَ ظُلُمَاتٌ يَوْمَ الْقِيَامَةِ',
-    latin: "Ittaquz-zhulma fa'innaz-zhulma zhulumatun yawmal-qiyamah.",
-    arti: 'Takutlah kalian terhadap kezhaliman, karena kezhaliman adalah kegelapan pada hari kiamat.',
-  },
-  {
-    id: 32,
-    judul: 'Anjuran Berbuat Lemah Lembut',
-    perawi: 'HR. Muslim',
-    kategori: 'Muslim',
-    arab: 'إِنَّ الرِّفْقَ لَا يَكُونُ فِي شَيْءٍ إِلَّا زَانَهُ، وَلَا يُنْزَعُ مِنْ شَيْءٍ إِلَّا شَانَهُ',
-    latin: "Innar-rifqa la yakunu fi syai'in illa zanahu, wa la yunza'u min syai'in illa syanahu.",
-    arti: 'Sesungguhnya kelembutan tidaklah ada pada sesuatu melainkan ia akan menghiasinya, dan tidaklah dicabut dari sesuatu melainkan ia akan memperburuknya.',
-  },
-  {
-    id: 33,
-    judul: 'Keutamaan Memberi Makan Orang Lain',
-    perawi: 'HR. Tirmidzi & Ibnu Majah',
-    kategori: 'Tirmidzi',
-    arab: 'أَفْشُوا السَّلَامَ، وَأَطْعِمُوا الطَّعَامَ، وَصَلُّوا بِاللَّيْلِ وَالنَّاسُ نِيَامٌ، تَدْخُلُوا الْجَنَّةَ بِسَلَامٍ',
-    latin: "Afsyus-salama, wa ath'imuth-tha'ama, wa sallu bil-laili wan-nasu niyamun, tadkhulul-jannata bisalamin.",
-    arti: 'Sebarkanlah salam, berikanlah makanan, dan sholat malamlah pada saat manusia sedang tidur, niscaya kalian akan masuk surga dengan selamat.',
-  },
-  {
-    id: 34,
-    judul: 'Keutamaan Sholat Dhuha',
-    perawi: 'HR. Muslim',
-    kategori: 'Muslim',
-    arab: 'يُصْبِحُ عَلى كُلِّ سُلامى مِنْ أَحَدِكُمْ صَدَقَةٌ...',
-    latin: "Yushbihu 'ala kulli sulamin min ahadikum sadaqah...",
-    arti: 'Setiap sendi dari anggota tubuh kalian wajib dikeluarkan sedekahnya setiap pagi... dan mencukupi hal tersebut adalah dua rakaat sholat Dhuha.',
-  },
-  {
-    id: 35,
-    judul: 'Pentingnya Menjaga Waktu',
-    perawi: 'HR. Tirmidzi',
-    kategori: 'Tirmidzi',
-    arab: 'نِعْمَتَانِ مَغْبُونٌ فِيهِمَا كَثِيرٌ مِنَ النَّاسِ: الصِّحَّةُ وَالْفَرَاغُ',
-    latin: "Ni'matani maghbunun fihima katsirun minan-nas: ash-shihhatu wal-faragh.",
-    arti: 'Ada dua nikmat yang banyak manusia tertipu (rugi) pada keduanya: nikmat sehat dan nikmat waktu luang.',
-  },
-  {
-    id: 36,
-    judul: 'Keutamaan Dzikir Pagi dan Petang (Tasbih & Tahmid)',
-    perawi: 'HR. Muslim',
-    kategori: 'Muslim',
-    arab: 'مَنْ قَالَ: سُبْحَانَ اللَّهِ وَبِحَمْدِهِ فِي يَوْمٍ مِائَةَ مَرَّةٍ، حُطَّتْ خَطَايَاهُ وَإِنْ كَانَتْ مِثْلَ زَبَدِ الْبَحْرِ',
-    latin: "Man qara'a: subhanallahi wa bihamdihi fi yaumin mi'atan marratan, huththat khathayahu wa in kanat mitsla zabadil-bahr.",
-    arti: "Barangsiapa membaca 'Subhanallahi wa bihamdihi' dalam sehari sebanyak 100 kali, maka kesalahan-kesalahannya akan diampuni meskipun sebanyak buih di lautan.",
-  },
-  {
-    id: 37,
-    judul: 'Larangan Marah dan Balasan Surga',
-    perawi: 'HR. Thabrani',
-    kategori: 'Lainnya',
-    arab: 'لَا تَغْضَبْ وَلَكَ الْجَنَّةُ',
-    latin: 'La taghdhab wa lakal-jannah.',
-    arti: 'Janganlah kamu marah, niscaya bagimu surga.',
-  },
-  {
-    id: 38,
-    judul: 'Anjuran Menjenguk Orang Sakit',
-    perawi: 'HR. Muslim',
-    kategori: 'Muslim',
-    arab: 'مَنْ عَادَ مَرِيضًا أَوْ زَارَ أَخًا لَهُ فِي اللَّهِ نَادَاهُ مُنَادٍ: أَنْ طِبْتَ وَطَابَ مَمْشَاكَ وَتبَوَّأْتَ مِنَ الْجَنَّةِ مَنْزِلًا',
-    latin: "Man 'ada maridhan aw zara akhan lahu fiillahi nada-hu munadin: an thibta wa thaba mamsyaka wa tabawwa'ta minal-jannati manzila.",
-    arti: "Barangsiapa menjenguk orang sakit atau mengunjungi saudaranya karena Allah, penyeru akan memanggil: 'Alangkah baiknya engkau, bagus pula langkahmu, dan engkau telah menempati sebuah tempat tinggal di surga.'",
-  },
-  {
-    id: 39,
-    judul: 'Keutamaan Menutupi Aib Saudara',
-    perawi: 'HR. Muslim',
-    kategori: 'Muslim',
-    arab: 'وَمَنْ سَتَرَ مُسْلِمًا سَتَرَهُ اللَّهُ فِي الدُّنْيَا وَالْآخِرَةِ',
-    latin: 'Wa man satara musliman satarahullahu fid-dunya wal-akhirah.',
-    arti: 'Dan barangsiapa menutupi aib seorang Muslim, maka Allah akan menutupi aibnya di dunia dan di akhirat.',
-  },
-  {
-    id: 40,
-    judul: 'Pentingnya Sifat Jujur',
-    perawi: 'HR. Bukhari & Muslim',
-    kategori: 'Bukhari & Muslim',
-    arab: 'إِنَّ الصِّدْقَ يَهْدِي إِلَى الْبِرِّ، وَإِنَّ الْبِرَّ يَهْدِي إِلَى الْجَنَّةِ',
-    latin: 'Innas-sidqa yahdi ilal-birri, wa innal-birra yahdi ilal-jannah.',
-    arti: 'Sesungguhnya kejujuran itu membimbing kepada kebaikan, dan kebaikan itu membimbing ke surga.',
-  },
-];
-
-const categories = ['Semua', 'Bukhari', 'Muslim', 'Bukhari & Muslim', 'Tirmidzi', 'Abu Dawud', "An-Nasa'i", 'Lainnya'];
 
 export default function HaditsPage() {
   const router = useRouter();
+  const [haditsList, setHaditsList] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [grandTotal, setGrandTotal] = useState(0);
+  const [perawiCounts, setPerawiCounts] = useState<Record<string, number>>({});
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('Semua');
-  const [visibleCount, setVisibleCount] = useState(10);
+  const [selectedPerawi, setSelectedPerawi] = useState('');
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
-  const filteredHadits = daftarHadits.filter((item) => {
-    const q = searchQuery.toLowerCase();
-    const matchSearch = item.judul.toLowerCase().includes(q) || item.arti.toLowerCase().includes(q) || item.latin.toLowerCase().includes(q) || item.perawi.toLowerCase().includes(q);
+  const perawiList = [
+    { name: 'abu-dawud', label: 'Abu Dawud', color: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-900/50' },
+    { name: 'bukhari', label: 'Bukhari', color: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/50' },
+    { name: 'muslim', label: 'Muslim', color: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900/50' },
+    { name: 'tirmidzi', label: 'Tirmidzi', color: 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-900/50' },
+    { name: 'nasai', label: 'An-Nasai', color: 'bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-200 dark:border-teal-900/50' },
+    { name: 'ibnu-majah', label: 'Ibnu Majah', color: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-900/50' },
+  ];
 
-    const matchCategory = selectedCategory === 'Semua' || item.kategori === selectedCategory;
+  useEffect(() => {
+    async function fetchHadits() {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/hadits?page=${page}&limit=12&search=${searchQuery}&perawi=${selectedPerawi}`);
+        const json = await res.json();
+        setHaditsList(json.data || []);
+        setTotalPages(json.totalPages || 1);
+        if (json.grandTotal) setGrandTotal(json.grandTotal);
+        if (json.perawiCounts) setPerawiCounts(json.perawiCounts);
+      } catch (error) {
+        console.error('Gagal mengambil data hadis:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
 
-    return matchSearch && matchCategory;
-  });
+    const timer = setTimeout(() => {
+      fetchHadits();
+    }, 250);
 
-  const displayedHadits = filteredHadits.slice(0, visibleCount);
+    return () => clearTimeout(timer);
+  }, [page, searchQuery, selectedPerawi]);
+
+  const handleCopy = (arab: string, terjemah: string, index: number) => {
+    const textToCopy = `${arab}\n\n"${terjemah}"`;
+    navigator.clipboard.writeText(textToCopy);
+    setCopiedIndex(index);
+    setTimeout(() => setCopiedIndex(null), 2000);
+  };
 
   return (
-    <main className="container mx-auto p-4 md:p-8 max-w-4xl min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-300">
-      {/* Tombol Navigasi Kembali menggunakan router.back() */}
-      <div className="mb-6 mt-4">
+    <main className="container mx-auto p-4 md:p-8 max-w-5xl min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 transition-colors duration-300">
+      {/* Tombol Navigasi Kembali */}
+      <div className="mb-6">
         <button
           onClick={() => router.back()}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all font-medium cursor-pointer"
+          className="group inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all shadow-sm"
         >
-          <span>←</span> Kembali ke Sebelumnya
+          <span className="transition-transform group-hover:-translate-x-1">←</span> Kembali ke Dashboard
         </button>
       </div>
 
       {/* Header Halaman */}
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-extrabold text-emerald-700 dark:text-emerald-400 mb-2">Hadits Pilihan</h1>
-        <p className="text-slate-500 dark:text-slate-400">Kumpulan mutiara hadits Nabi Muhammad SAW penyejuk hati</p>
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-6 md:p-8 rounded-3xl shadow-sm mb-8">
+        <div className="inline-flex items-center gap-2 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 px-3.5 py-1.5 rounded-full text-xs font-bold mb-3 border border-emerald-200/50 dark:border-emerald-800/40">
+          Kitab Sunnah
+        </div>
+        <h1 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white mb-2">
+          Pustaka <span className="text-emerald-600 dark:text-emerald-400">Hadits Pilihan</span>
+        </h1>
+        <p className="text-slate-500 dark:text-slate-400 text-sm">Jelajahi koleksi hadis otentik dengan terjemahan bahasa Indonesia untuk membimbing keseharianmu.</p>
       </div>
 
-      {/* Kotak Pencarian */}
-      <div className="max-w-md mx-auto mb-6">
-        <div className="flex items-center w-full bg-white dark:bg-slate-900 p-2 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 focus-within:ring-2 focus-within:ring-emerald-400 transition-all">
-          <span className="pl-3 pr-2 text-slate-400">🔍</span>
-          <input
-            type="text"
-            value={searchQuery}
+      {/* Control Panel: Search & Filter */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-4 md:p-6 rounded-3xl shadow-sm mb-8 space-y-4">
+        <div className="flex flex-col md:flex-row gap-3">
+          <div className="relative flex-1">
+            <span className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400">🔍</span>
+            <input
+              type="text"
+              placeholder="Cari lafaz arab atau terjemahan hadis..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setPage(1);
+              }}
+              className="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+            />
+          </div>
+          {/* Dropdown dengan Angka Total */}
+          <select
+            value={selectedPerawi}
             onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setVisibleCount(10);
+              setSelectedPerawi(e.target.value);
+              setPage(1);
             }}
-            placeholder="Cari hadits (misal: niat, sholat, sedekah)..."
-            className="flex-1 bg-transparent text-slate-700 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-sm outline-none px-2 py-2 w-full"
-          />
-          {searchQuery && (
-            <button onClick={() => setSearchQuery('')} className="px-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-sm font-bold cursor-pointer">
-              ✕
-            </button>
-          )}
+            className="px-4 py-3.5 bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/80 rounded-2xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all cursor-pointer"
+          >
+            <option value="">Semua Perawi Kitab ({grandTotal})</option>
+            {perawiList.map((p) => (
+              <option key={p.name} value={p.name}>
+                HR. {p.label} ({perawiCounts[p.name] || 0})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Quick Filter Pill Badges */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+          <button
+            onClick={() => {
+              setSelectedPerawi('');
+              setPage(1);
+            }}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+              selectedPerawi === '' ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 shadow-md' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
+            }`}
+          >
+            Semua ({grandTotal})
+          </button>
+          {perawiList.map((p) => {
+            const count = perawiCounts[p.name] || 0;
+            return (
+              <button
+                key={p.name}
+                onClick={() => {
+                  setSelectedPerawi(p.name);
+                  setPage(1);
+                }}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all whitespace-nowrap ${
+                  selectedPerawi === p.name ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 border-slate-900 shadow-md' : `${p.color} border`
+                }`}
+              >
+                HR. {p.label} ({count})
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Filter Kategori Perawi */}
-      <div className="flex flex-wrap justify-center gap-2 mb-10">
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => {
-              setSelectedCategory(cat);
-              setVisibleCount(10);
-            }}
-            className={`px-4 py-2 rounded-xl text-xs md:text-sm font-bold transition-all cursor-pointer ${
-              selectedCategory === cat
-                ? 'bg-emerald-600 text-white shadow-md'
-                : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-slate-800 hover:text-emerald-700 dark:hover:text-emerald-400 border border-slate-200 dark:border-slate-800'
-            }`}
-          >
-            {cat === 'Semua' ? '🌟 Semua Hadits' : cat === 'Lainnya' ? '📚 Lainnya' : `HR. ${cat}`}
-          </button>
-        ))}
-      </div>
-
-      {/* Daftar Hadits */}
+      {/* Daftar Hadis Cards */}
       <div className="space-y-6">
-        {displayedHadits.length > 0 ? (
-          <>
-            {displayedHadits.map((item) => (
-              <div key={item.id} className="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-md transition-all">
-                <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
-                  <h3 className="font-bold text-lg text-emerald-800 dark:text-emerald-400">{item.judul}</h3>
-                  <span className="text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-950 px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-900">{item.perawi}</span>
-                </div>
-
-                {/* Teks Arab */}
-                <p className="text-2xl md:text-3xl text-slate-800 dark:text-slate-100 font-serif leading-[2.5] text-right mb-4 transition-colors" dir="rtl">
-                  {item.arab}
-                </p>
-
-                {/* Teks Latin & Artinya */}
-                <div className="space-y-2 pt-3 border-t border-slate-50 dark:border-slate-800">
-                  <p className="text-emerald-700 dark:text-emerald-400 italic text-sm md:text-base font-medium">{item.latin}</p>
-                  <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-sm md:text-base">{item.arti}</p>
-                </div>
-              </div>
-            ))}
-
-            {/* Tombol Muat Lebih Banyak (Load More) */}
-            {visibleCount < filteredHadits.length && (
-              <div className="text-center pt-6">
-                <button onClick={() => setVisibleCount((prev) => prev + 10)} className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-md transition-all cursor-pointer text-sm">
-                  Muat Lebih Banyak ({filteredHadits.length - visibleCount} tersisa)
-                </button>
-              </div>
-            )}
-          </>
-        ) : (
-          <div className="text-center p-12 bg-white dark:bg-slate-900 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 text-slate-500 dark:text-slate-400 transition-colors">
-            <p className="text-lg font-semibold mb-1">Hadits tidak ditemukan</p>
-            <p className="text-sm text-slate-400 dark:text-slate-500">Coba pilih kategori lain atau ubah kata kunci pencarian.</p>
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20 space-y-3">
+            <div className="w-10 h-10 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-sm text-slate-400 font-medium animate-pulse">Memuat mutiara hadis...</p>
           </div>
+        ) : haditsList.length === 0 ? (
+          <div className="text-center py-20 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-3xl">
+            <span className="text-4xl mb-3 block">📭</span>
+            <p className="text-slate-600 dark:text-slate-300 font-bold text-base">Hadis tidak ditemukan</p>
+            <p className="text-xs text-slate-400 mt-1">Coba gunakan kata kunci atau filter perawi yang lain.</p>
+          </div>
+        ) : (
+          haditsList.map((item, idx) => (
+            <div
+              key={idx}
+              className="group bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-emerald-500/50 dark:hover:border-emerald-500/50 p-6 md:p-8 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 space-y-5 relative"
+            >
+              {/* Header Card */}
+              <div className="flex justify-between items-center">
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/40">
+                  📖 HR. {item.perawi}
+                </span>
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-bold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full">No. {item.nomor}</span>
+                  <button
+                    onClick={() => handleCopy(item.arab, item.terjemah, idx)}
+                    title="Salin Hadis"
+                    className="p-2 text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 bg-slate-50 dark:bg-slate-800/60 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 rounded-xl transition-all"
+                  >
+                    {copiedIndex === idx ? '✅' : '📋'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Teks Arab */}
+              <div className="bg-slate-50/60 dark:bg-slate-950/40 p-5 md:p-6 rounded-2xl border border-slate-100 dark:border-slate-800/60">
+                <p className="text-right text-2xl md:text-3xl font-arabic leading-[2.2] text-slate-900 dark:text-slate-100">{item.arab}</p>
+              </div>
+
+              {/* Teks Terjemahan */}
+              <div className="pt-2">
+                <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-1.5">Terjemahan</p>
+                <p className="text-sm md:text-base text-slate-600 dark:text-slate-300 leading-relaxed font-normal">{item.terjemah}</p>
+              </div>
+            </div>
+          ))
         )}
       </div>
+
+      {/* Pagination Dinamis */}
+      {!loading && totalPages > 1 && (
+        <div className="flex justify-between items-center bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 px-6 py-4 rounded-2xl shadow-sm mt-8">
+          <button
+            onClick={() => {
+              setPage((p) => Math.max(p - 1, 1));
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            disabled={page === 1}
+            className="px-5 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold disabled:opacity-40 hover:bg-emerald-600 hover:text-white transition-all shadow-sm"
+          >
+            ← Sebelumnya
+          </button>
+
+          <div className="text-xs font-bold text-slate-500 dark:text-slate-400">
+            Halaman <span className="text-emerald-600 dark:text-emerald-400 font-extrabold">{page}</span> dari {totalPages}
+          </div>
+
+          <button
+            onClick={() => {
+              setPage((p) => Math.min(p + 1, totalPages));
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            disabled={page === totalPages}
+            className="px-5 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold disabled:opacity-40 hover:bg-emerald-600 hover:text-white transition-all shadow-sm"
+          >
+            Selanjutnya →
+          </button>
+        </div>
+      )}
     </main>
   );
 }
