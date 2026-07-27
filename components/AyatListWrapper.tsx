@@ -46,8 +46,6 @@ const juzStarts = [
 
 export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: AyatListWrapperProps) {
   const [viewMode, setViewMode] = useState<'terjemah' | 'mushaf'>('terjemah');
-
-  // 🌟 State untuk menyimpan ayat yang sedang diklik di Mode Mushaf
   const [selectedAyat, setSelectedAyat] = useState<any | null>(null);
 
   const toArabicNumber = (num: number) => {
@@ -123,7 +121,7 @@ export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: Aya
         )}
 
         {/* ========================================= */}
-        {/* MODE 2: MUSHAF (Bisa Diklik Muncul Arti) */}
+        {/* MODE 2: MUSHAF */}
         {/* ========================================= */}
         {viewMode === 'mushaf' && (
           <div className="bg-white dark:bg-slate-900 p-5 sm:p-8 md:p-12 rounded-2xl md:rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors duration-300">
@@ -146,7 +144,6 @@ export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: Aya
                       </div>
                     )}
 
-                    {/* 🌟 AYAT BISA DIKLIK 🌟 */}
                     <span onClick={() => setSelectedAyat(item)} className="cursor-pointer hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors rounded px-1 group relative" title="Ketuk untuk melihat terjemahan">
                       {teksArab}
 
@@ -167,39 +164,42 @@ export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: Aya
       </div>
 
       {/* ========================================= */}
-      {/* POPUP MODAL TERJEMAHAN AYAT (MUSHAF MODE) */}
+      {/* POPUP MODAL DINAMIS (Aman untuk Ayat Panjang) */}
       {/* ========================================= */}
       {selectedAyat && (
-        <div onClick={() => setSelectedAyat(null)} className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+        <div onClick={() => setSelectedAyat(null)} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
           <div
-            onClick={(e) => e.stopPropagation()} // Mencegah modal tertutup saat diklik di dalam kotak
-            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative animate-in zoom-in-95 duration-300 text-left"
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative animate-in zoom-in-95 duration-300 text-left max-h-[85vh] flex flex-col"
           >
-            {/* Tombol Close */}
+            {/* Tombol Close (Sticky di atas, tidak akan ikut tergeser) */}
             <button
               onClick={() => setSelectedAyat(null)}
-              className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 flex items-center justify-center font-bold text-sm transition-colors cursor-pointer"
+              className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 flex items-center justify-center font-bold text-sm transition-colors cursor-pointer z-10 shadow-sm"
             >
               ✕
             </button>
 
-            {/* Info Nomor Ayat & Surat */}
-            <div className="flex items-center gap-2 mb-4">
+            {/* Header Info */}
+            <div className="flex items-center gap-2 mb-4 pr-10">
               <span className="bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 font-bold px-3 py-1 rounded-xl text-xs border border-emerald-200 dark:border-emerald-800/50">
                 Ayat {selectedAyat.nomorAyat || selectedAyat.nomor}
               </span>
               <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">{namaSurat}</span>
             </div>
 
-            {/* Teks Arab di Modal */}
-            <p className="text-2xl sm:text-3xl font-serif text-right text-slate-800 dark:text-slate-100 mb-5 leading-[2.2]" dir="rtl">
-              {selectedAyat.teksArab || selectedAyat.ar || selectedAyat.arab || selectedAyat.text || selectedAyat.teks}
-            </p>
+            {/* 🌟 KOTAK KONTEN YANG BISA DI-SCROLL SENDIRI JIKA PANJANG 🌟 */}
+            <div className="overflow-y-auto pr-2 space-y-4 custom-scrollbar">
+              {/* Teks Arab */}
+              <p className="text-2xl sm:text-3xl font-serif text-right text-slate-800 dark:text-slate-100 leading-[2.2]" dir="rtl">
+                {selectedAyat.teksArab || selectedAyat.ar || selectedAyat.arab || selectedAyat.text || selectedAyat.teks}
+              </p>
 
-            {/* Terjemahan & Latin di Modal */}
-            <div className="space-y-2 pt-4 border-t border-slate-100 dark:border-slate-800">
-              <p className="text-xs text-emerald-600 dark:text-emerald-400 italic font-medium leading-relaxed">{selectedAyat.teksLatin || selectedAyat.tr || selectedAyat.latin || selectedAyat.transliteration}</p>
-              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed font-normal">{selectedAyat.teksIndonesia || selectedAyat.idn || selectedAyat.arti || selectedAyat.terjemahan}</p>
+              {/* Terjemahan & Latin */}
+              <div className="space-y-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <p className="text-xs text-emerald-600 dark:text-emerald-400 italic font-medium leading-relaxed">{selectedAyat.teksLatin || selectedAyat.tr || selectedAyat.latin || selectedAyat.transliteration}</p>
+                <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed font-normal">{selectedAyat.teksIndonesia || selectedAyat.idn || selectedAyat.arti || selectedAyat.terjemahan}</p>
+              </div>
             </div>
           </div>
         </div>
