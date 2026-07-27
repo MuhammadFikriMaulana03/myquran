@@ -100,23 +100,14 @@ export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: Aya
                   {/* PEMBATAS JUZ PREMIUM (TERJEMAH) */}
                   {startJuzData && (
                     <div className="relative flex items-center justify-center my-14 group">
-                      {/* Garis Latar Belakang */}
                       <div className="absolute inset-0 flex items-center" aria-hidden="true">
                         <div className="w-full border-t-2 border-emerald-200 dark:border-emerald-800/60 transition-colors"></div>
                       </div>
 
-                      {/* Badge / Pita Utama */}
                       <div className="relative flex items-center justify-center bg-gradient-to-r from-emerald-600 to-emerald-800 dark:from-emerald-800 dark:to-emerald-950 px-8 py-3.5 rounded-full shadow-lg shadow-emerald-600/30 border-[3px] border-white dark:border-slate-900 group-hover:scale-105 transition-transform duration-300">
-                        {/* Simbol Kiri */}
                         <span className="text-amber-400 text-lg mr-3 drop-shadow-md">۞</span>
-
-                        {/* Teks Utama */}
                         <span className="text-white font-black tracking-[0.2em] uppercase text-xs md:text-sm drop-shadow-md">Permulaan Juz {startJuzData.juz}</span>
-
-                        {/* Simbol Kanan */}
                         <span className="text-amber-400 text-lg ml-3 drop-shadow-md">۞</span>
-
-                        {/* Efek Pendar (Glow) di belakang badge */}
                         <div className="absolute -inset-1 bg-emerald-400/20 blur-lg rounded-full -z-10"></div>
                       </div>
                     </div>
@@ -133,8 +124,10 @@ export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: Aya
         {/* MODE 2: MUSHAF */}
         {/* ========================================= */}
         {viewMode === 'mushaf' && (
-          <div className="bg-white dark:bg-slate-900 p-8 md:p-12 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors duration-300">
-            <div className="text-right text-[32px] md:text-[40px] leading-[2.8] md:leading-[3] font-serif text-slate-800 dark:text-slate-100" dir="rtl">
+          // 👇 UBAHAN: Padding responsif. Di HP lebih tipis (p-5), di Tablet/PC membesar (md:p-12)
+          <div className="bg-white dark:bg-slate-900 p-5 sm:p-8 md:p-12 rounded-2xl md:rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors duration-300">
+            {/* 👇 UBAHAN: Ukuran font responsif. Di HP [26px] dgn spasi [2.4], di Desktop [40px] dgn spasi [3] */}
+            <div className="text-right text-[26px] sm:text-[32px] md:text-[40px] leading-[2.4] sm:leading-[2.8] md:leading-[3] font-serif text-slate-800 dark:text-slate-100" dir="rtl">
               {ayatList.map((item: any, index: number) => {
                 const teksArab = item.teksArab || item.ar || item.arab || item.text || item.teks || '';
                 const nomorAyat = item.nomorAyat || item.nomor || index + 1;
@@ -143,30 +136,31 @@ export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: Aya
 
                 return (
                   <span key={nomorAyat}>
-                    {/* PEMBATAS JUZ KHUSUS MUSHAF (Sangat Jelas & Elegan) */}
+                    {/* PEMBATAS JUZ KHUSUS MUSHAF */}
                     {startJuzData && (
-                      <div className="flex justify-center w-full my-12" dir="ltr">
-                        <div className="bg-gradient-to-r from-amber-500 to-amber-600 dark:from-amber-600 dark:to-amber-700 px-8 py-3 rounded-full shadow-lg shadow-amber-500/30 border-4 border-white dark:border-slate-900 flex items-center justify-center font-sans">
-                          <span className="text-white text-xl mr-3 opacity-90">۞</span>
-
-                          <span className="text-white font-black tracking-[0.2em] uppercase text-xs md:text-sm drop-shadow-sm">Permulaan Juz {startJuzData.juz}</span>
-
-                          <span className="text-white text-xl ml-3 opacity-90">۞</span>
+                      <div className="flex justify-center w-full my-8 md:my-12" dir="ltr">
+                        <div className="bg-gradient-to-r from-amber-500 to-amber-600 dark:from-amber-600 dark:to-amber-700 px-6 md:px-8 py-2 md:py-3 rounded-full shadow-lg shadow-amber-500/30 border-4 border-white dark:border-slate-900 flex items-center justify-center font-sans">
+                          <span className="text-white text-lg md:text-xl mr-2 md:mr-3 opacity-90">۞</span>
+                          <span className="text-white font-black tracking-[0.2em] uppercase text-[10px] md:text-xs drop-shadow-sm">Permulaan Juz {startJuzData.juz}</span>
+                          <span className="text-white text-lg md:text-xl ml-2 md:ml-3 opacity-90">۞</span>
                         </div>
                       </div>
                     )}
 
                     {teksArab}
-                    <span className="inline-flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-sans mx-2 text-2xl select-none">
+
+                    {/* 👇 UBAHAN: Ornamen ayat juga ikut mengecil proporsional di HP */}
+                    <span className="inline-flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-sans mx-1.5 md:mx-2 text-xl md:text-2xl select-none">
                       <span className="font-bold opacity-80">﴿</span>
-                      <span className="px-1 text-xl">{toArabicNumber(nomorAyat)}</span>
+                      <span className="px-0.5 md:px-1 text-lg md:text-xl">{toArabicNumber(nomorAyat)}</span>
                       <span className="font-bold opacity-80">﴾</span>
                     </span>
                   </span>
                 );
               })}
             </div>
-            <p className="text-center text-slate-400 text-xs mt-12 font-medium tracking-widest uppercase">Akhir dari Surat {namaSurat}</p>
+
+            <p className="text-center text-slate-400 text-[10px] md:text-xs mt-10 md:mt-12 font-medium tracking-widest uppercase">Akhir dari Surat {namaSurat}</p>
           </div>
         )}
       </div>
