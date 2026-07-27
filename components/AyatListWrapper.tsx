@@ -57,25 +57,18 @@ export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: Aya
       .join('');
   };
 
-  // 🌟 PENGURAI TAJWID AMAN (Tanpa merusak harokat/sambungan huruf Arab) 🌟
   const renderTajwidText = (text: string) => {
     if (!isTajwidActive || !text) return text;
 
-    // Kita pecah per KATA (bukan per huruf/karakter) agar bentuk tulisan Arab & harokatnya utuh
     const words = text.split(' ');
-
     return words.map((word, wIdx) => {
       let colorClass = '';
 
-      // Deteksi hukum tajwid berdasarkan pola karakter dalam satu kata utuh
       if (word.includes('ّ')) {
-        // Ghunnah / Tasydid (Warna Amber)
         colorClass = 'text-amber-500 font-bold';
       } else if (['ق', 'ط', 'ب', 'ج', 'د'].some((char) => word.includes(char + 'ْ') || word.includes(char))) {
-        // Indikasi Qalqalah (Warna Biru)
         colorClass = 'text-blue-500 font-semibold';
       } else if (word.includes('نْ') || word.includes('ً') || word.includes('ٍ') || word.includes('ٌ')) {
-        // Hukum Nun Mati / Tanwin (Warna Ungu)
         colorClass = 'text-purple-500 font-semibold';
       }
 
@@ -89,35 +82,39 @@ export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: Aya
 
   return (
     <div className="w-full relative">
-      {/* TOGGLE & TOMBOL TAJWID */}
-      <div className="flex flex-col sm:flex-row justify-center items-center gap-3 mb-8 sticky top-4 z-30">
-        <div className="flex bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-1.5 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-800 gap-1 transition-colors duration-300">
+      {/* 🌟 PANEL KONTROL ELEGAN (Desain Minimalis Berkelas ala Aplikasi Pro) 🌟 */}
+      <div className="flex items-center justify-between gap-2 mb-4 sticky top-3 z-30 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl py-2 px-3 rounded-2xl border border-slate-200/50 dark:border-slate-800/60 shadow-sm transition-colors">
+        {/* Segmented Control Mode Baca */}
+        <div className="flex bg-slate-100 dark:bg-slate-950/60 p-1 rounded-xl gap-1">
           <button
             onClick={() => setViewMode('terjemah')}
-            className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 cursor-pointer ${
-              viewMode === 'terjemah' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:text-emerald-600 dark:text-slate-400 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+            className={`px-3 py-1.5 rounded-lg font-semibold text-xs transition-all cursor-pointer ${
+              viewMode === 'terjemah' ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            📑 Dengan Terjemah
+            Terjemah
           </button>
           <button
             onClick={() => setViewMode('mushaf')}
-            className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 cursor-pointer ${
-              viewMode === 'mushaf' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:text-emerald-600 dark:text-slate-400 dark:hover:text-emerald-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+            className={`px-3 py-1.5 rounded-lg font-semibold text-xs transition-all cursor-pointer ${
+              viewMode === 'mushaf' ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            📖 Mode Mushaf
+            Mushaf
           </button>
         </div>
 
+        {/* Tombol Tajwid Minimalist */}
         <button
           onClick={() => setIsTajwidActive(!isTajwidActive)}
-          className={`px-4 py-3 rounded-2xl font-bold text-xs shadow-lg backdrop-blur-md border transition-all cursor-pointer flex items-center gap-2 ${
-            isTajwidActive ? 'bg-amber-500 text-white border-amber-400 shadow-amber-500/20' : 'bg-white/90 dark:bg-slate-900/90 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800'
+          className={`px-3 py-1.5 rounded-xl font-medium text-xs border transition-all cursor-pointer flex items-center gap-1.5 ${
+            isTajwidActive
+              ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800/50'
+              : 'bg-transparent text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-800'
           }`}
         >
-          <span>🎨</span>
-          <span>{isTajwidActive ? 'Tajwid Warna: ON' : 'Tajwid Warna: OFF'}</span>
+          <span className={`w-2 h-2 rounded-full ${isTajwidActive ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`}></span>
+          <span>Tajwid</span>
         </button>
       </div>
 
@@ -139,19 +136,17 @@ export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: Aya
                   {startJuzData && (
                     <div className="relative flex items-center justify-center my-14 group">
                       <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                        <div className="w-full border-t-2 border-emerald-200 dark:border-emerald-800/60 transition-colors"></div>
+                        <div className="w-full border-t border-slate-200 dark:border-slate-800"></div>
                       </div>
-                      <div className="relative flex items-center justify-center bg-gradient-to-r from-emerald-600 to-emerald-800 dark:from-emerald-800 dark:to-emerald-950 px-8 py-3.5 rounded-full shadow-lg shadow-emerald-600/30 border-[3px] border-white dark:border-slate-900">
-                        <span className="text-amber-400 text-lg mr-3 drop-shadow-md">۞</span>
-                        <span className="text-white font-black tracking-[0.2em] uppercase text-xs md:text-sm drop-shadow-md">Permulaan Juz {startJuzData.juz}</span>
-                        <span className="text-amber-400 text-lg ml-3 drop-shadow-md">۞</span>
+                      <div className="relative flex items-center justify-center bg-slate-100 dark:bg-slate-900 px-6 py-2 rounded-full border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 font-semibold text-xs tracking-widest uppercase">
+                        <span>۞ Permulaan Juz {startJuzData.juz} ۞</span>
                       </div>
                     </div>
                   )}
 
                   <div className="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800">
                     <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-100 dark:border-slate-800">
-                      <div className="w-10 h-10 flex items-center justify-center bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 font-bold rounded-xl">{nomorAyat}</div>
+                      <div className="w-10 h-10 flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-sm">{nomorAyat}</div>
                     </div>
 
                     <div className="text-3xl md:text-4xl text-slate-800 dark:text-slate-100 font-serif leading-[2.8] text-right mb-6 flex flex-wrap justify-end gap-x-2" dir="rtl">
@@ -159,8 +154,8 @@ export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: Aya
                     </div>
 
                     <div className="space-y-3 pt-4 border-t border-slate-50 dark:border-slate-800/50">
-                      <p className="text-emerald-700 dark:text-emerald-400 italic font-medium">{teksLatin || 'Cara baca tidak tersedia'}</p>
-                      <p className="text-slate-600 dark:text-slate-300 leading-relaxed">{teksArti || 'Artinya tidak tersedia'}</p>
+                      <p className="text-emerald-600 dark:text-emerald-400 italic font-medium text-sm">{teksLatin || 'Cara baca tidak tersedia'}</p>
+                      <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-sm md:text-base">{teksArti || 'Artinya tidak tersedia'}</p>
                     </div>
                   </div>
                 </div>
@@ -171,7 +166,7 @@ export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: Aya
 
         {/* MODE 2: MUSHAF */}
         {viewMode === 'mushaf' && (
-          <div className="bg-white dark:bg-slate-900 p-5 sm:p-8 md:p-12 rounded-2xl md:rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors duration-300">
+          <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 md:p-12 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors duration-300">
             <div className="text-right text-[26px] sm:text-[32px] md:text-[40px] leading-[2.6] sm:leading-[3] md:leading-[3.2] font-serif text-slate-800 dark:text-slate-100 flex flex-wrap justify-end gap-x-2" dir="rtl">
               {ayatList.map((item: any, index: number) => {
                 const rawArab = item.teksArab || item.ar || item.arab || item.text || item.teks || '';
@@ -182,16 +177,14 @@ export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: Aya
                 return (
                   <span key={nomorAyat} className="inline-flex items-baseline flex-wrap">
                     {startJuzData && (
-                      <div className="flex justify-center w-full my-8 md:my-12" dir="ltr">
-                        <div className="bg-gradient-to-r from-amber-500 to-amber-600 dark:from-amber-600 dark:to-amber-700 px-6 md:px-8 py-2 md:py-3 rounded-full shadow-lg shadow-amber-500/30 border-4 border-white dark:border-slate-900 flex items-center justify-center font-sans">
-                          <span className="text-white text-lg md:text-xl mr-2 md:mr-3 opacity-90">۞</span>
-                          <span className="text-white font-black tracking-[0.2em] uppercase text-[10px] md:text-xs drop-shadow-sm">Permulaan Juz {startJuzData.juz}</span>
-                          <span className="text-white text-lg md:text-xl ml-2 md:ml-3 opacity-90">۞</span>
+                      <div className="flex justify-center w-full my-10" dir="ltr">
+                        <div className="bg-slate-100 dark:bg-slate-800 px-6 py-2 rounded-full border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-semibold text-xs tracking-widest uppercase">
+                          <span>۞ Permulaan Juz {startJuzData.juz} ۞</span>
                         </div>
                       </div>
                     )}
 
-                    <span onClick={() => setSelectedAyat(item)} className="cursor-pointer hover:opacity-80 transition-opacity rounded px-1 inline-flex items-baseline flex-wrap gap-x-1" title="Ketuk untuk melihat terjemahan">
+                    <span onClick={() => setSelectedAyat(item)} className="cursor-pointer hover:opacity-85 transition-opacity rounded px-1 inline-flex items-baseline flex-wrap gap-x-1" title="Ketuk untuk melihat terjemahan">
                       {renderTajwidText(rawArab)}
 
                       <span className="inline-flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-sans mx-1.5 md:mx-2 text-xl md:text-2xl select-none align-middle">
@@ -205,7 +198,7 @@ export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: Aya
               })}
             </div>
 
-            <p className="text-center text-slate-400 text-[10px] md:text-xs mt-10 md:mt-12 font-medium tracking-widest uppercase">Akhir dari Surat {namaSurat} • Ketuk ayat mana saja untuk melihat arti.</p>
+            <p className="text-center text-slate-400 text-xs mt-12 font-medium tracking-widest uppercase">Akhir dari Surat {namaSurat} • Ketuk ayat mana saja untuk melihat arti.</p>
           </div>
         )}
       </div>
@@ -225,9 +218,7 @@ export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: Aya
             </button>
 
             <div className="flex items-center gap-2 mb-4 pr-10">
-              <span className="bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 font-bold px-3 py-1 rounded-xl text-xs border border-emerald-200 dark:border-emerald-800/50">
-                Ayat {selectedAyat.nomorAyat || selectedAyat.nomor}
-              </span>
+              <span className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold px-3 py-1 rounded-xl text-xs">Ayat {selectedAyat.nomorAyat || selectedAyat.nomor}</span>
               <span className="text-xs text-slate-400 font-semibold uppercase tracking-wider">{namaSurat}</span>
             </div>
 
