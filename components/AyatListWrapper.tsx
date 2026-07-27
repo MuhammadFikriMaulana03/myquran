@@ -73,8 +73,8 @@ export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: Aya
       }
 
       return (
-        <span key={wIdx} className={`${colorClass} transition-colors inline-block mx-[2px]`}>
-          {word}
+        <span key={wIdx} className={`${colorClass} transition-colors inline`}>
+          {word}{' '}
         </span>
       );
     });
@@ -82,9 +82,8 @@ export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: Aya
 
   return (
     <div className="w-full relative">
-      {/* 🌟 PANEL KONTROL ELEGAN (Desain Minimalis Berkelas ala Aplikasi Pro) 🌟 */}
+      {/* PANEL KONTROL ELEGAN */}
       <div className="flex items-center justify-between gap-2 mb-4 sticky top-3 z-30 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl py-2 px-3 rounded-2xl border border-slate-200/50 dark:border-slate-800/60 shadow-sm transition-colors">
-        {/* Segmented Control Mode Baca */}
         <div className="flex bg-slate-100 dark:bg-slate-950/60 p-1 rounded-xl gap-1">
           <button
             onClick={() => setViewMode('terjemah')}
@@ -104,7 +103,6 @@ export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: Aya
           </button>
         </div>
 
-        {/* Tombol Tajwid Minimalist */}
         <button
           onClick={() => setIsTajwidActive(!isTajwidActive)}
           className={`px-3 py-1.5 rounded-xl font-medium text-xs border transition-all cursor-pointer flex items-center gap-1.5 ${
@@ -149,7 +147,7 @@ export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: Aya
                       <div className="w-10 h-10 flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-sm">{nomorAyat}</div>
                     </div>
 
-                    <div className="text-3xl md:text-4xl text-slate-800 dark:text-slate-100 font-serif leading-[2.8] text-right mb-6 flex flex-wrap justify-end gap-x-2" dir="rtl">
+                    <div className="text-3xl md:text-4xl text-slate-800 dark:text-slate-100 font-serif leading-[2.8] text-right mb-6" dir="rtl">
                       {renderTajwidText(rawArab)}
                     </div>
 
@@ -164,10 +162,10 @@ export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: Aya
           </div>
         )}
 
-        {/* MODE 2: MUSHAF */}
+        {/* MODE 2: MUSHAF (Diperbaiki Spasinya agar mengalir natural seperti Kitab Cetak) */}
         {viewMode === 'mushaf' && (
           <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 md:p-12 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-800 transition-colors duration-300">
-            <div className="text-right text-[26px] sm:text-[32px] md:text-[40px] leading-[2.6] sm:leading-[3] md:leading-[3.2] font-serif text-slate-800 dark:text-slate-100 flex flex-wrap justify-end gap-x-2" dir="rtl">
+            <div className="text-right text-[26px] sm:text-[32px] md:text-[40px] leading-[2.6] sm:leading-[3] md:leading-[3.5] font-serif text-slate-800 dark:text-slate-100" dir="rtl">
               {ayatList.map((item: any, index: number) => {
                 const rawArab = item.teksArab || item.ar || item.arab || item.text || item.teks || '';
                 const nomorAyat = item.nomorAyat || item.nomor || index + 1;
@@ -175,7 +173,7 @@ export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: Aya
                 const startJuzData = juzStarts.find((j) => j.surat === nomorSurat && j.ayat === nomorAyat);
 
                 return (
-                  <span key={nomorAyat} className="inline-flex items-baseline flex-wrap">
+                  <span key={nomorAyat}>
                     {startJuzData && (
                       <div className="flex justify-center w-full my-10" dir="ltr">
                         <div className="bg-slate-100 dark:bg-slate-800 px-6 py-2 rounded-full border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-semibold text-xs tracking-widest uppercase">
@@ -184,21 +182,22 @@ export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: Aya
                       </div>
                     )}
 
-                    <span onClick={() => setSelectedAyat(item)} className="cursor-pointer hover:opacity-85 transition-opacity rounded px-1 inline-flex items-baseline flex-wrap gap-x-1" title="Ketuk untuk melihat terjemahan">
+                    <span onClick={() => setSelectedAyat(item)} className="cursor-pointer hover:opacity-85 transition-opacity rounded px-1 inline" title="Ketuk untuk melihat terjemahan">
                       {renderTajwidText(rawArab)}
-
-                      <span className="inline-flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-sans mx-1.5 md:mx-2 text-xl md:text-2xl select-none align-middle">
+                      <span className="inline-flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-sans mx-1.5 text-xl md:text-2xl select-none align-middle">
                         <span className="font-bold opacity-80">﴿</span>
-                        <span className="px-0.5 md:px-1 text-lg md:text-xl">{toArabicNumber(nomorAyat)}</span>
+                        <span className="px-0.5 text-lg md:text-xl">{toArabicNumber(nomorAyat)}</span>
                         <span className="font-bold opacity-80">﴾</span>
-                      </span>
+                      </span>{' '}
                     </span>
                   </span>
                 );
               })}
             </div>
 
-            <p className="text-center text-slate-400 text-xs mt-12 font-medium tracking-widest uppercase">Akhir dari Surat {namaSurat} • Ketuk ayat mana saja untuk melihat arti.</p>
+            <p className="text-center text-slate-400 text-xs mt-12 font-medium tracking-widest uppercase" dir="ltr">
+              Akhir dari Surat {namaSurat} • Ketuk ayat mana saja untuk melihat arti.
+            </p>
           </div>
         )}
       </div>
@@ -223,7 +222,7 @@ export default function AyatListWrapper({ ayatList, nomorSurat, namaSurat }: Aya
             </div>
 
             <div className="overflow-y-auto pr-2 space-y-4">
-              <div className="text-2xl sm:text-3xl font-serif text-right text-slate-800 dark:text-slate-100 leading-[2.4] flex flex-wrap justify-end gap-x-2" dir="rtl">
+              <div className="text-2xl sm:text-3xl font-serif text-right text-slate-800 dark:text-slate-100 leading-[2.4]" dir="rtl">
                 {renderTajwidText(selectedAyat.teksArab || selectedAyat.ar || selectedAyat.arab || selectedAyat.text || selectedAyat.teks)}
               </div>
 
